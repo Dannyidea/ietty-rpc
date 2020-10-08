@@ -1,0 +1,11 @@
+/.metadata/
+
+.idea/
+*.iml
+target/
+.log
+*.flattened-pom.xml
+log/*
+log/
+*.log.*
+*.log

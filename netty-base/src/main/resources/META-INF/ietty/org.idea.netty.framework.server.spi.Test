@@ -1,0 +1,5 @@
+test=org.idea.netty.framework.server.test.TestImpl
+test2=org.idea.netty.framework.server.test.TestImpl
+test3=org.idea.netty.framework.server.test.TestImpl
+#test4=org.idea.netty.framework.server.test.TestImpl
+#test5=org.idea.netty.framework.server.test.TestImpl
