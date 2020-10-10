@@ -20,11 +20,11 @@ public class MainClient {
         ReferenceConfig<Test> referenceConfig = new ReferenceConfig<>();
         referenceConfig.setApplication(applicationConfig.getName());
         referenceConfig.setInterfaceClass(Test.class);
-        referenceConfig.setInterfaceName(Test.class.getName());
+        referenceConfig.setInterfaceName("testImpl");
         Test t = referenceConfig.get();
         while (true) {
             Thread.sleep(1000);
-            t.doTest();
+            t.doTest("idea");
             System.out.println("发送消息");
         }
     }

@@ -31,6 +31,7 @@ public class JdkProxyFactory {
                     invocation.setMethodParameterTypes(argsType);
                     invocation.setArguments(args);
                 }
+                invocation.setServiceName(referenceConfig.getInterfaceName());
                 invocation.setServiceClass(interfaceClass);
                 invocation.setServiceVersion("1.0.0");
                 invocation.setAttachments(new HashMap<>(1));

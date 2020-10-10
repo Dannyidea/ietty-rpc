@@ -6,5 +6,5 @@ package org.idea.netty.framework.server.test;
  */
 public interface Test {
 
-    void doTest();
+    void doTest(String arg);
 }

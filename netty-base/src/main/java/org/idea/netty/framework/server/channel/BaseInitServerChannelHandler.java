@@ -6,9 +6,16 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.idea.netty.framework.server.ServerApplication;
 import org.idea.netty.framework.server.bean.User;
 import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.config.Invocation;
+import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.util.CollectionUtils;
+import org.idea.netty.framework.server.util.StringUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 /**
@@ -30,11 +37,38 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
         AllChannelHandler.channelRead(new Runnable() {
             @Override
             public void run() {
-                Class clazz = invocation.getServiceClass();
-
+                try {
+                    //注意如果是个接口则不能进行实现
+                    ServiceConfig serviceConfig = ServerApplication.getServiceConfig(invocation.getServiceName());
+                    if (serviceConfig == null) {
+                        throw new RuntimeException("serviceConfig can not be null!");
+                    }
+                    Object invocationClass = serviceConfig.getInterfaceImplClass().newInstance();
+                    String[] methodParameterTypeArr = invocation.getMethodParameterTypes();
+                    Object[] argsArr = invocation.getArguments();
+                    Class[] clazzArr;
+                    Object[] args;
+                    if (StringUtils.isNotStringArrEmpty(methodParameterTypeArr)) {
+                        clazzArr = new Class[methodParameterTypeArr.length];
+                        args = new Object[methodParameterTypeArr.length];
+                        for (int i = 0; i < clazzArr.length; i++) {
+                            Class parameterTypeClazz = Class.forName(methodParameterTypeArr[i]);
+                            clazzArr[i] = parameterTypeClazz;
+                            args[i] = argsArr[i];
+                        }
+                    } else {
+                        clazzArr = new Class[0];
+                        args = new Object[0];
+                    }
+                    Method method = invocationClass.getClass().getMethod(invocation.getMethodName(), clazzArr);
+                    method.invoke(invocationClass, args);
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
             }
         });
-
         ctx.writeAndFlush(data);
     }
 
@@ -52,6 +86,6 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     private Invocation toInvocationFromByte(byte[] bytes) {
         String json = new String(bytes);
-        return JSON.parseObject(json,Invocation.class);
+        return JSON.parseObject(json, Invocation.class);
     }
 }

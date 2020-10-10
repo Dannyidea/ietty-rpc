@@ -23,7 +23,8 @@ public class MainServer {
         List<ServiceConfig> serviceConfigs = new ArrayList<>();
         ServiceConfig serviceConfig = new ServiceConfig();
         serviceConfig.setInterfaceClass(Test.class);
-        serviceConfig.setInterfaceName(Test.class.getName());
+        serviceConfig.setInterfaceImplClass(TestImpl.class);
+        serviceConfig.setInterfaceName("testImpl");
         serviceConfig.setFilter("testFilter");
         serviceConfigs.add(serviceConfig);
 
@@ -31,9 +32,8 @@ public class MainServer {
         protocolConfig.setHost("127.0.0.1");
         protocolConfig.setName("dubbo-test");
         protocolConfig.setPort(8089);
-
-        ServerApplication.start();
         ServerApplication.setServerConfigList(serviceConfigs);
+        ServerApplication.start();
 
     }
 }

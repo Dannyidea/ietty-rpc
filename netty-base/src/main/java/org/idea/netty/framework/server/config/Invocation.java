@@ -1,11 +1,8 @@
 package org.idea.netty.framework.server.config;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
@@ -21,6 +18,8 @@ public class Invocation implements Serializable {
     private Class serviceClass;
 
     private String serviceVersion;
+
+    private String serviceName;
 
     private String methodName;
 
@@ -78,10 +77,17 @@ public class Invocation implements Serializable {
         this.serviceClass = serviceClass;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
     public byte[] toByteArray() {
         return JSON.toJSON(this).toString().getBytes();
     }
-
 
 
 }

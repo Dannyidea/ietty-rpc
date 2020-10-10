@@ -64,7 +64,7 @@ public class ExtensionLoader {
         extensionLoader.loadDirectory(Test.class);
         for (String className : extensionClassMap.keySet()) {
            Test t = (Test) initClassInstance(className,Test.class);
-           t.doTest();
+           t.doTest("idea");
         }
     }
 

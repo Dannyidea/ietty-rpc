@@ -12,6 +12,8 @@ import org.idea.netty.framework.server.channel.BaseInitServerChannelHandler;
 import org.idea.netty.framework.server.config.ServiceConfig;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author linhao
@@ -34,6 +36,8 @@ public class ServerApplication {
 
     private static List<ServiceConfig> serviceConfigList;
 
+    private static Map<String,ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+
     private static short DEFAULT_PORT = 9099;
 
     private static boolean isStart = false;
@@ -43,8 +47,16 @@ public class ServerApplication {
         return isStart;
     }
 
-    public static void setServerConfigList(List<ServiceConfig> serviceConfigList){
-        serviceConfigList = serviceConfigList;
+    public static void setServerConfigList(List<ServiceConfig> serviceConfigListParam){
+        serviceConfigList = serviceConfigListParam;
+        serviceConfigMap = new ConcurrentHashMap<>();
+        for (ServiceConfig serviceConfig : serviceConfigList) {
+            serviceConfigMap.putIfAbsent(serviceConfig.getInterfaceName(),serviceConfig);
+        }
+    }
+
+    public static ServiceConfig getServiceConfig(String serviceName){
+        return serviceConfigMap.get(serviceName);
     }
 
     public static List<ServiceConfig>  getServerConfigList(){

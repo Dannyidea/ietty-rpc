@@ -28,6 +28,11 @@ public class ServiceConfig {
     private Class<?> interfaceClass;
 
     /**
+     * 具体实现类对象
+     */
+    private Class<?> interfaceImplClass;
+
+    /**
      * 过滤器
      */
     private String filter;
@@ -101,5 +106,13 @@ public class ServiceConfig {
 
     public void setProtocolConfig(ProtocolConfig protocolConfig) {
         this.protocolConfig = protocolConfig;
+    }
+
+    public Class<?> getInterfaceImplClass() {
+        return interfaceImplClass;
+    }
+
+    public void setInterfaceImplClass(Class<?> interfaceImplClass) {
+        this.interfaceImplClass = interfaceImplClass;
     }
 }
