@@ -1,8 +1,7 @@
 package org.idea.netty.framework.server.config;
 
-import lombok.Data;
+import lombok.ToString;
 
-import java.util.List;
 
 import static org.idea.netty.framework.server.ServerApplication.isServerStart;
 
@@ -10,6 +9,7 @@ import static org.idea.netty.framework.server.ServerApplication.isServerStart;
  * @author linhao
  * @date created in 3:34 下午 2020/10/7
  */
+@ToString
 public class ServiceConfig {
 
     /**

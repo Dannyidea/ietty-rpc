@@ -13,6 +13,7 @@ import org.idea.netty.framework.server.config.ServiceConfig;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,7 +35,7 @@ public class ServerApplication {
 
     private static ServerBootstrap serverBootstrap;
 
-    private static List<ServiceConfig> serviceConfigList;
+    private static Set<ServiceConfig> serviceConfigSet;
 
     private static Map<String,ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
@@ -47,10 +48,10 @@ public class ServerApplication {
         return isStart;
     }
 
-    public static void setServerConfigList(List<ServiceConfig> serviceConfigListParam){
-        serviceConfigList = serviceConfigListParam;
+    public static void setServerConfigList(Set<ServiceConfig> serviceConfigListParam){
+        serviceConfigSet = serviceConfigListParam;
         serviceConfigMap = new ConcurrentHashMap<>();
-        for (ServiceConfig serviceConfig : serviceConfigList) {
+        for (ServiceConfig serviceConfig : serviceConfigSet) {
             serviceConfigMap.putIfAbsent(serviceConfig.getInterfaceName(),serviceConfig);
         }
     }
@@ -59,9 +60,6 @@ public class ServerApplication {
         return serviceConfigMap.get(serviceName);
     }
 
-    public static List<ServiceConfig>  getServerConfigList(){
-        return serviceConfigList;
-    }
 
     /**
      * 启动服务

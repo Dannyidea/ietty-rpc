@@ -1,7 +1,18 @@
 package org.idea.netty.framework.server.util;
 
+import org.idea.netty.framework.server.ServerApplication;
+import org.idea.netty.framework.server.common.Service;
+import org.idea.netty.framework.server.config.ReferenceConfig;
+import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.test.Test;
+import org.idea.netty.framework.server.test.TestImpl;
+
+import java.io.File;
+import java.io.FileFilter;
 import java.lang.annotation.Annotation;
-import java.util.List;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.*;
 
 /**
  * @author linhao
@@ -9,7 +20,121 @@ import java.util.List;
  */
 public class AnnotationUtils {
 
-    public static List<Class> getClassWithAnnotation(Annotation annotation){
+
+
+    /**
+     * 获取当前项目中包含指定注解的类
+     *
+     * @param basePack
+     * @return
+     */
+    public static Set<ServiceConfig> getServiceConfigByAnnotation(Class annotationClass, String basePack){
+        List<Class> classList = getClassFromPackage(basePack);
+        Set<ServiceConfig> serviceConfigHashSet = new HashSet<>();
+        for (Class aClass : classList) {
+            if(aClass.isAnnotationPresent(annotationClass)){
+                Service service = (Service) aClass.getAnnotation(Service.class);
+                ServiceConfig serviceConfig = new ServiceConfig();
+                //父类接口
+                serviceConfig.setInterfaceClass(aClass.getInterfaces().getClass());
+                serviceConfig.setInterfaceImplClass(aClass);
+                serviceConfig.setInterfaceName(service.interfaceName());
+                serviceConfig.setFilter(service.filter());
+                serviceConfigHashSet.add(serviceConfig);
+                System.out.println("[ietty] add serviceConfig "+serviceConfig.toString());
+            }
+        }
+        return serviceConfigHashSet;
+    }
+
+
+
+
+    /**
+     * 获得包下面的所有的class
+     *
+     * @param pack
+     *            package完整名称
+     * @return List包含所有class的实例
+     */
+    private static List<Class> getClassFromPackage(String pack) {
+        List<Class> clazzs = new ArrayList<>();
+
+        // 是否循环搜索子包
+        boolean recursive = true;
+
+        // 包名字
+        String packageName = pack;
+        // 包名对应的路径名称
+        String packageDirName = packageName.replace('.', '/');
+
+        Enumeration<URL> dirs;
+
+        try {
+            dirs = Thread.currentThread().getContextClassLoader().getResources(packageDirName);
+            while (dirs.hasMoreElements()) {
+                URL url = dirs.nextElement();
+
+                String protocol = url.getProtocol();
+
+                if ("file".equals(protocol)) {
+                    String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
+                    findClassInPackageByFile(packageName, filePath, recursive, clazzs);
+                } else if ("jar".equals(protocol)) {
+                    //todo
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return clazzs;
+    }
+
+    /**
+     * 在package对应的路径下找到所有的class
+     *
+     * @param packageName
+     *            package名称
+     * @param filePath
+     *            package对应的路径
+     * @param recursive
+     *            是否查找子package
+     * @param clazzs
+     *            找到class以后存放的集合
+     */
+    private static void findClassInPackageByFile(String packageName, String filePath, final boolean recursive, List<Class> clazzs) {
+        File dir = new File(filePath);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return;
+        }
+        // 在给定的目录下找到所有的文件，并且进行条件过滤
+        File[] dirFiles = dir.listFiles(new FileFilter() {
+
+            @Override
+            public boolean accept(File file) {
+                boolean acceptDir = recursive && file.isDirectory();// 接受dir目录
+                boolean acceptClass = file.getName().endsWith("class");// 接受class文件
+                return acceptDir || acceptClass;
+            }
+        });
+
+        for (File file : dirFiles) {
+            if (file.isDirectory()) {
+                findClassInPackageByFile(packageName + "." + file.getName(), file.getAbsolutePath(), recursive, clazzs);
+            } else {
+                String className = file.getName().substring(0, file.getName().length() - 6);
+                try {
+                    clazzs.add(Thread.currentThread().getContextClassLoader().loadClass(packageName + "." + className));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
 
     }
 }

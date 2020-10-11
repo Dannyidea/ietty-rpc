@@ -9,7 +9,7 @@ import org.idea.netty.framework.server.proxy.JdkProxyFactory;
  * @author linhao
  * @date created in 3:39 下午 2020/10/8
  */
-public class MainClient {
+public class IettyClientStarter {
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationConfig applicationConfig = new ApplicationConfig();

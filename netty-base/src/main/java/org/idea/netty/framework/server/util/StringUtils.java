@@ -12,6 +12,8 @@ public class StringUtils {
         return str==null || str.length()==0;
     }
 
+    public static String EMPTY_STR = "";
+
     public static boolean isStringArrEmpty(String[] arr){
         return arr==null || arr.length==0;
     }
