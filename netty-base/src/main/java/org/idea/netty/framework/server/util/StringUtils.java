@@ -8,11 +8,15 @@ import java.util.List;
  */
 public class StringUtils {
 
+    public static String EMPTY_STR = "";
+
     public static boolean isEmpty(String str){
         return str==null || str.length()==0;
     }
 
-    public static String EMPTY_STR = "";
+    public static boolean isNotEmpty(String str){
+        return !isEmpty(str);
+    }
 
     public static boolean isStringArrEmpty(String[] arr){
         return arr==null || arr.length==0;

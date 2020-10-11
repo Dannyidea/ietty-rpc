@@ -5,8 +5,11 @@ import org.idea.netty.framework.server.common.Service;
 import org.idea.netty.framework.server.config.ApplicationConfig;
 import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.spi.filter.Filter;
+import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.AnnotationUtils;
 
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -25,6 +28,13 @@ public class IettyServerStarter {
         String packAgeName = ServerApplication.class.getPackage().getName();
         Set<ServiceConfig> serviceConfigSet = AnnotationUtils.getServiceConfigByAnnotation(Service.class, packAgeName);
         ServerApplication.setServerConfigList(serviceConfigSet);
+        //初始化过滤器的实现
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        try {
+            extensionLoader.loadDirectory(Filter.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ServerApplication.start();
     }
 

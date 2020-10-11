@@ -11,11 +11,17 @@ import org.idea.netty.framework.server.bean.User;
 import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.config.Invocation;
 import org.idea.netty.framework.server.config.ServiceConfig;
-import org.idea.netty.framework.server.util.CollectionUtils;
+import org.idea.netty.framework.server.spi.filter.Filter;
+import org.idea.netty.framework.server.spi.filter.IettyServerFilter;
+import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+
+import static org.idea.netty.framework.server.spi.loader.ExtensionLoader.initClassInstance;
+import static org.idea.netty.framework.server.util.CollectionUtils.isMapNotEmpty;
 
 
 /**
@@ -61,6 +67,15 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                         args = new Object[0];
                     }
                     Method method = invocationClass.getClass().getMethod(invocation.getMethodName(), clazzArr);
+
+                    Map<String, Class<?>> classMap = ExtensionLoader.getExtensionClassMap();
+                    if(isMapNotEmpty(classMap)){
+                        String currentFilterName = serviceConfig.getFilter();
+                        if(StringUtils.isNotEmpty(currentFilterName)){
+                            Filter filter = (Filter) initClassInstance(currentFilterName);
+                            filter.doFilter(invocation);
+                        }
+                    }
                     method.invoke(invocationClass, args);
                 } catch (InstantiationException e) {
                     e.printStackTrace();

@@ -1,5 +1,7 @@
 package org.idea.netty.framework.server.spi.loader;
 
+import org.idea.netty.framework.server.spi.filter.Filter;
+import org.idea.netty.framework.server.spi.filter.IettyServerFilter;
 import org.idea.netty.framework.server.test.Test;
 
 import java.io.BufferedReader;
@@ -16,11 +18,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExtensionLoader {
 
+    /**
+     * 存储扩展spi的map，key是spi文件里面写入的key
+     */
     private static Map<String, Class<?>> extensionClassMap = new ConcurrentHashMap<>();
 
     private static final String EXTENSION_LOADER_DIR_PREFIX = "META-INF/ietty/";
 
-    private void loadDirectory(Class clazz) throws IOException {
+    public static  Map<String, Class<?>> getExtensionClassMap(){
+        return extensionClassMap;
+    }
+
+    public void loadDirectory(Class clazz) throws IOException {
         synchronized (ExtensionLoader.class){
             String fileName = EXTENSION_LOADER_DIR_PREFIX + clazz.getName();
             ClassLoader classLoader = this.getClass().getClassLoader();
@@ -46,7 +55,7 @@ public class ExtensionLoader {
         }
     }
 
-    public static <T>Object initClassInstance(String className, Class<T> tClass) {
+    public static <T>Object initClassInstance(String className) {
         if(extensionClassMap!=null && extensionClassMap.size()>0){
             try {
                 return (T)extensionClassMap.get(className).newInstance();
@@ -60,12 +69,8 @@ public class ExtensionLoader {
     }
 
     public static void main(String[] args) throws IOException {
-        ExtensionLoader extensionLoader = new ExtensionLoader();
-        extensionLoader.loadDirectory(Test.class);
-        for (String className : extensionClassMap.keySet()) {
-           Test t = (Test) initClassInstance(className,Test.class);
-           t.doTest("idea");
-        }
+
+
     }
 
 }
