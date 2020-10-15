@@ -2,6 +2,7 @@ package org.idea.netty.framework.server.test;
 
 import org.idea.netty.framework.server.ServerApplication;
 import org.idea.netty.framework.server.common.Service;
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ApplicationConfig;
 import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
@@ -28,13 +29,18 @@ public class IettyServerStarter {
         String packAgeName = ServerApplication.class.getPackage().getName();
         Set<ServiceConfig> serviceConfigSet = AnnotationUtils.getServiceConfigByAnnotation(Service.class, packAgeName);
         ServerApplication.setServerConfigList(serviceConfigSet);
-        //初始化过滤器的实现
+        //构建配置总线，并且写入到zookeeper
+
+        //初始化过滤器的spi实现
         ExtensionLoader extensionLoader = new ExtensionLoader();
         try {
             extensionLoader.loadDirectory(Filter.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+
         ServerApplication.start();
     }
 

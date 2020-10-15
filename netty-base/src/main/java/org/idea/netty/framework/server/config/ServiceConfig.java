@@ -1,7 +1,13 @@
 package org.idea.netty.framework.server.config;
 
 import lombok.ToString;
+import org.idea.netty.framework.server.common.URL;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.idea.netty.framework.server.ServerApplication.isServerStart;
 
@@ -21,6 +27,9 @@ public class ServiceConfig {
      * The interface name of the exported service
      */
     private String interfaceName;
+
+
+    private String[] methodNames;
 
     /**
      * The interface class of the exported service
@@ -51,12 +60,25 @@ public class ServiceConfig {
     /**
      * 暴露服务
      */
-    public void export() {
+    public void export(URL url) {
         //判断服务是否启动
         if (!isServerStart()) {
             throw new RuntimeException("sever is close");
         }
         System.out.println("服务暴露");
+        //在这里进行服务写入到zookeeper并且构建配置总线
+        Map<String,String> parameterMap = new HashMap<>();
+        parameterMap.put("serviceName",this.getServiceName());
+        String[] methodNamesArr = this.getMethodNames();
+        parameterMap.put("methods",methodNamesArr.toString());
+        parameterMap.put("port", String.valueOf(this.getProtocolConfig().getPort()));
+        parameterMap.put("host",this.getProtocolConfig().getHost());
+        //默认初始化权重值
+        parameterMap.put("weight","100");
+        url.setParameters(parameterMap);
+        url.setPath(this.getServiceName());
+        //持久化写入到zookeeper
+        ZookeeperRegisterFactory.buildZookeeperRegister().register(url);
     }
 
 
@@ -114,5 +136,13 @@ public class ServiceConfig {
 
     public void setInterfaceImplClass(Class<?> interfaceImplClass) {
         this.interfaceImplClass = interfaceImplClass;
+    }
+
+    public String[] getMethodNames() {
+        return methodNames;
+    }
+
+    public void setMethodNames(String[] methodNames) {
+        this.methodNames = methodNames;
     }
 }
