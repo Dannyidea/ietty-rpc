@@ -1,13 +1,19 @@
 package org.idea.netty.framework.server.config;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.ToString;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import static org.idea.netty.framework.server.ServerApplication.isServerStart;
 
@@ -56,25 +62,48 @@ public class ServiceConfig {
      */
     private ProtocolConfig protocolConfig;
 
+    /**
+     * 延迟发布的线程池
+     */
+    private static final ScheduledExecutorService DELAY_EXPORT_EXECUTOR = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("DubboServiceDelayExporter", true));
+
+
+    /**
+     * 是否延迟暴露服务 0 不延迟 其他 延迟时长（毫秒）
+     */
+    private int delay;
+
 
     /**
      * 暴露服务
      */
-    public void export(URL url) {
-        //判断服务是否启动
-        if (!isServerStart()) {
-            throw new RuntimeException("sever is close");
-        }
+    public synchronized void export(URL url) {
         System.out.println("服务暴露");
+        if (this.delay > 0) {
+            //延迟暴露服务
+            DELAY_EXPORT_EXECUTOR.schedule(new Runnable() {
+                @Override
+                public void run() {
+                   System.out.println("延迟发布");
+                   doExport(url);
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+        } else {
+            doExport(url);
+        }
+    }
+
+    protected synchronized void doExport(URL url) {
         //在这里进行服务写入到zookeeper并且构建配置总线
-        Map<String,String> parameterMap = new HashMap<>();
-        parameterMap.put("serviceName",this.getServiceName());
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("serviceName", this.getServiceName());
         String[] methodNamesArr = this.getMethodNames();
-        parameterMap.put("methods",methodNamesArr.toString());
+        System.out.println(Arrays.toString(methodNamesArr));
+        parameterMap.put("methods", Arrays.toString(methodNamesArr));
         parameterMap.put("port", String.valueOf(this.getProtocolConfig().getPort()));
-        parameterMap.put("host",this.getProtocolConfig().getHost());
+        parameterMap.put("host", this.getProtocolConfig().getHost());
         //默认初始化权重值
-        parameterMap.put("weight","100");
+        parameterMap.put("weight", "100");
         url.setParameters(parameterMap);
         url.setPath(this.getServiceName());
         //持久化写入到zookeeper
@@ -144,5 +173,13 @@ public class ServiceConfig {
 
     public void setMethodNames(String[] methodNames) {
         this.methodNames = methodNames;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 }

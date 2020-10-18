@@ -6,7 +6,7 @@ import org.idea.netty.framework.server.common.Service;
  * @author linhao
  * @date created in 11:28 上午 2020/10/7
  */
-@Service(interfaceName = "testImpl")
+@Service(interfaceName = "testImpl",delay = 3000)
 public class TestImpl implements Test {
 
     @Override

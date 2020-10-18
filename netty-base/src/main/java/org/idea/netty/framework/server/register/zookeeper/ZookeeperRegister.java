@@ -42,9 +42,11 @@ public class ZookeeperRegister implements Register {
         String firstChildPath = ROOT + "/" + serviceName;
         String secondChildPath = firstChildPath + "/provider";
         if (!zkClient.exists(secondChildPath)) {
-            zkClient.createPersistent(secondChildPath,true);
+            zkClient.createPersistent(secondChildPath, true);
         }
-        zkClient.writeData(secondChildPath,buildUrlStr(url));
+        String urlDataStr = buildUrlStr(url);
+        System.out.println("【ietty register config】" + urlDataStr);
+        zkClient.writeData(secondChildPath, urlDataStr.getBytes());
         return true;
     }
 
@@ -62,7 +64,7 @@ public class ZookeeperRegister implements Register {
         map.put("host", "127.0.0.1");
         map.put("port", "8999");
 
-        URL url = new URL("ietty", "username", "password", map, 9090, "/test-path");
+        URL url = new URL("ietty", "username", "password", 9000, map, "/test-path");
         ZookeeperRegister zookeeperRegister = new ZookeeperRegister();
         zookeeperRegister.register(url);
         while (true) {

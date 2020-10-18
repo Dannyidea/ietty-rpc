@@ -1,5 +1,7 @@
 package org.idea.netty.framework.server.common;
 
+import lombok.AllArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -9,6 +11,7 @@ import java.util.Map;
  * @author linhao
  * @date created in 10:48 下午 2020/10/13
  */
+@AllArgsConstructor
 public class URL implements Serializable {
 
     private  String protocol;
@@ -34,13 +37,7 @@ public class URL implements Serializable {
         return super.toString();
     }
 
-    public URL(String protocol, String username, String password, Map<String, String> parameters, int port, String path) {
-        this.protocol = protocol;
-        this.username = username;
-        this.password = password;
-        this.parameters = parameters;
-        this.port = port;
-        this.path = path;
+    public URL() {
     }
 
 
@@ -97,7 +94,7 @@ public class URL implements Serializable {
         String weight = url.getParameters().get("weight");
         String host = url.getParameters().get("host");
         String port = url.getParameters().get("port");
-        return url.getProtocol() + "://" + url.getPath() + ";" + ";" + methods + ";" + weight + ";" + host + ";" + port + ";"
+        return url.getProtocol() + "://" + url.getPath() + ";" + methods + ";" + weight + ";" + host + ";" + port + ";"
                 + url.getUsername() + ";" + url.getPassword();
     }
 }

@@ -38,9 +38,6 @@ public class IettyServerStarter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
         ServerApplication.start();
     }
 

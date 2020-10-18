@@ -9,6 +9,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.idea.netty.framework.server.channel.BaseInitServerChannelHandler;
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ServiceConfig;
 
 import java.util.List;
@@ -52,9 +53,14 @@ public class ServerApplication {
         serviceConfigSet = serviceConfigListParam;
         serviceConfigMap = new ConcurrentHashMap<>();
         for (ServiceConfig serviceConfig : serviceConfigSet) {
+            URL url = new URL();
+            url.setUsername("username");
+            url.setPassword("password");
+            serviceConfig.export(url);
             serviceConfigMap.putIfAbsent(serviceConfig.getInterfaceName(),serviceConfig);
         }
     }
+
 
     public static ServiceConfig getServiceConfig(String serviceName){
         return serviceConfigMap.get(serviceName);

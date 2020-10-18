@@ -16,4 +16,6 @@ public @interface Service {
     String interfaceName() default "";
 
     String filter() default "";
+
+    int delay() default 0;
 }

@@ -2,6 +2,7 @@ package org.idea.netty.framework.server.util;
 
 import org.idea.netty.framework.server.ServerApplication;
 import org.idea.netty.framework.server.common.Service;
+import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.ReferenceConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
 import org.idea.netty.framework.server.test.Test;
@@ -10,6 +11,7 @@ import org.idea.netty.framework.server.test.TestImpl;
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
@@ -21,40 +23,53 @@ import java.util.*;
 public class AnnotationUtils {
 
 
-
     /**
      * 获取当前项目中包含指定注解的类
      *
      * @param basePack
      * @return
      */
-    public static Set<ServiceConfig> getServiceConfigByAnnotation(Class annotationClass, String basePack){
+    public static Set<ServiceConfig> getServiceConfigByAnnotation(Class annotationClass, String basePack) {
         List<Class> classList = getClassFromPackage(basePack);
         Set<ServiceConfig> serviceConfigHashSet = new HashSet<>();
         for (Class aClass : classList) {
-            if(aClass.isAnnotationPresent(annotationClass)){
+            if (aClass.isAnnotationPresent(annotationClass)) {
                 Service service = (Service) aClass.getAnnotation(Service.class);
                 ServiceConfig serviceConfig = new ServiceConfig();
                 //父类接口
                 serviceConfig.setInterfaceClass(aClass.getInterfaces().getClass());
                 serviceConfig.setInterfaceImplClass(aClass);
                 serviceConfig.setInterfaceName(service.interfaceName());
+                serviceConfig.setServiceName(aClass.getName());
+                ProtocolConfig protocolConfig = new ProtocolConfig();
+                //todo
+                protocolConfig.setPort(9090);
+                protocolConfig.setName("ietty");
+                protocolConfig.setHost("www.idea.com");
+
+                if(service.delay()>0){
+                    serviceConfig.setDelay(service.delay());
+                }
+                serviceConfig.setProtocolConfig(protocolConfig);
+                Method[] methods = aClass.getInterfaces().getClass().getMethods();
+                String[] methodNameArr = new String[methods.length];
+                for (int i = 0; i < methods.length; i++) {
+                    methodNameArr[i] = methods[i].getName();
+                }
+                serviceConfig.setMethodNames(methodNameArr);
                 serviceConfig.setFilter(service.filter());
                 serviceConfigHashSet.add(serviceConfig);
-                System.out.println("[ietty] add serviceConfig "+serviceConfig.toString());
+                System.out.println("[ietty] add serviceConfig " + serviceConfig.toString());
             }
         }
         return serviceConfigHashSet;
     }
 
 
-
-
     /**
      * 获得包下面的所有的class
      *
-     * @param pack
-     *            package完整名称
+     * @param pack package完整名称
      * @return List包含所有class的实例
      */
     private static List<Class> getClassFromPackage(String pack) {
@@ -95,14 +110,10 @@ public class AnnotationUtils {
     /**
      * 在package对应的路径下找到所有的class
      *
-     * @param packageName
-     *            package名称
-     * @param filePath
-     *            package对应的路径
-     * @param recursive
-     *            是否查找子package
-     * @param clazzs
-     *            找到class以后存放的集合
+     * @param packageName package名称
+     * @param filePath    package对应的路径
+     * @param recursive   是否查找子package
+     * @param clazzs      找到class以后存放的集合
      */
     private static void findClassInPackageByFile(String packageName, String filePath, final boolean recursive, List<Class> clazzs) {
         File dir = new File(filePath);
@@ -135,6 +146,9 @@ public class AnnotationUtils {
     }
 
     public static void main(String[] args) {
-
+        System.out.println(TestImpl.class.getSimpleName());
+        System.out.println(TestImpl.class.getTypeName());
+        System.out.println(TestImpl.class.getName());
+        System.out.println(TestImpl.class.getPackage() + "." + TestImpl.class.getName());
     }
 }
