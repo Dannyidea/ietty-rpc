@@ -12,7 +12,6 @@ import org.idea.netty.framework.server.channel.BaseInitServerChannelHandler;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ServiceConfig;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
