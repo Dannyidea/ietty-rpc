@@ -1,4 +1,4 @@
 # ietty-rpc
- technical research RPC framework
+一边阅读dubbo的底层源码设计，一边通过手写来复原dubbo这款rpc分布式框架。
+目前已经复原了启动暴露服务，加上spi机制，过滤器，远程调用模块的内容。
 
- use netty to write a rpc-framework
