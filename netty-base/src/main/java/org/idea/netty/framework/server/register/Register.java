@@ -1,4 +1,4 @@
-package org.idea.netty.framework.server.register.zookeeper;
+package org.idea.netty.framework.server.register;
 
 import org.idea.netty.framework.server.common.URL;
 

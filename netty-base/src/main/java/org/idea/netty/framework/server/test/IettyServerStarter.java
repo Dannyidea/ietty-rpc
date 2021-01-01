@@ -2,10 +2,12 @@ package org.idea.netty.framework.server.test;
 
 import org.idea.netty.framework.server.ServerApplication;
 import org.idea.netty.framework.server.common.Service;
-import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ApplicationConfig;
 import org.idea.netty.framework.server.config.ProtocolConfig;
+import org.idea.netty.framework.server.config.RegisterConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.register.RegisterFactory;
 import org.idea.netty.framework.server.spi.filter.Filter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.AnnotationUtils;
@@ -24,10 +26,15 @@ public class IettyServerStarter {
      *
      * @throws InterruptedException
      */
-    public static void initServerAndStart() throws InterruptedException {
+    public static void initServerAndStart(ApplicationConfig applicationConfig,ProtocolConfig protocolConfig,RegisterConfig registerConfig) throws InterruptedException {
         //加载服务类
         String packAgeName = ServerApplication.class.getPackage().getName();
         Set<ServiceConfig> serviceConfigSet = AnnotationUtils.getServiceConfigByAnnotation(Service.class, packAgeName);
+        for (ServiceConfig serviceConfig : serviceConfigSet) {
+            serviceConfig.setApplicationConfig(applicationConfig);
+            serviceConfig.setProtocolConfig(protocolConfig);
+            serviceConfig.setRegisterConfig(registerConfig);
+        }
         ServerApplication.setServerConfigList(serviceConfigSet);
         //构建配置总线，并且写入到zookeeper
 
@@ -35,6 +42,7 @@ public class IettyServerStarter {
         ExtensionLoader extensionLoader = new ExtensionLoader();
         try {
             extensionLoader.loadDirectory(Filter.class);
+            extensionLoader.loadDirectory(RegisterFactory.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,10 +57,17 @@ public class IettyServerStarter {
 
         ProtocolConfig protocolConfig = new ProtocolConfig();
         protocolConfig.setHost("127.0.0.1");
-        protocolConfig.setName("dubbo-test");
+        protocolConfig.setName("ietty");
         protocolConfig.setPort(8089);
 
-        initServerAndStart();
+        RegisterConfig registerConfig = new RegisterConfig();
+        registerConfig.setAddress("127.0.0.1");
+        registerConfig.setPort(2181);
+        registerConfig.setUsername("username");
+        registerConfig.setPassword("password");
+        registerConfig.setProtocol("myRegister");
+
+        initServerAndStart(applicationConfig,protocolConfig,registerConfig);
 
     }
 }

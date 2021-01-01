@@ -1,17 +1,14 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
-import lombok.extern.slf4j.Slf4j;
-import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.ACL;
 import org.idea.netty.framework.server.common.URL;
+import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.util.PropertiesUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
 import static org.idea.netty.framework.server.common.URL.buildUrlStr;
 
 
@@ -23,14 +20,12 @@ public class ZookeeperRegister implements Register {
 
     private String ROOT = "/ietty";
 
-    private static String zookeeperAddress = "localhost:2181";
-
     private ZkClient zkClient;
 
     private final static Integer TIMEOUT = 3000;
 
     public ZookeeperRegister() {
-        zkClient = new ZkClient(zookeeperAddress, TIMEOUT);
+        zkClient = new ZkClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY), TIMEOUT);
     }
 
     @Override
@@ -45,7 +40,7 @@ public class ZookeeperRegister implements Register {
             zkClient.createPersistent(secondChildPath, true);
         }
         String urlDataStr = buildUrlStr(url);
-        System.out.println("【ietty register config】" + urlDataStr);
+        System.out.println("ietty register config" + urlDataStr);
         zkClient.writeData(secondChildPath, urlDataStr.getBytes());
         return true;
     }

@@ -1,12 +1,18 @@
 package org.idea.netty.framework.server.config;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.internal.StringUtil;
 import lombok.ToString;
 import org.idea.netty.framework.server.common.URL;
+import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.register.RegisterFactory;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
+import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
+import org.idea.netty.framework.server.util.StringUtils;
 
 
+import javax.management.RuntimeErrorException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +69,11 @@ public class ServiceConfig {
     private ProtocolConfig protocolConfig;
 
     /**
+     * 注册中心的配置
+     */
+    private RegisterConfig registerConfig;
+
+    /**
      * 延迟发布的线程池
      */
     private static final ScheduledExecutorService DELAY_EXPORT_EXECUTOR = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("DubboServiceDelayExporter", true));
@@ -79,13 +90,18 @@ public class ServiceConfig {
      */
     public synchronized void export(URL url) {
         System.out.println("服务暴露");
+        if(this.getRegisterConfig()==null){
+            throw new RuntimeException("register config is null!");
+        }
+        String protocol = this.getRegisterConfig().getProtocol();
+        url.setProtocol(protocol);
         if (this.delay > 0) {
             //延迟暴露服务
             DELAY_EXPORT_EXECUTOR.schedule(new Runnable() {
                 @Override
                 public void run() {
-                   System.out.println("延迟发布");
-                   doExport(url);
+                    System.out.println("延迟发布");
+                    doExport(url);
                 }
             }, delay, TimeUnit.MILLISECONDS);
         } else {
@@ -101,13 +117,24 @@ public class ServiceConfig {
         System.out.println(Arrays.toString(methodNamesArr));
         parameterMap.put("methods", Arrays.toString(methodNamesArr));
         parameterMap.put("port", String.valueOf(this.getProtocolConfig().getPort()));
-        parameterMap.put("host", this.getProtocolConfig().getHost());
+        String registerAddress = this.getProtocolConfig().getHost();
+        parameterMap.put("host", registerAddress);
         //默认初始化权重值
         parameterMap.put("weight", "100");
         url.setParameters(parameterMap);
         url.setPath(this.getServiceName());
-        //持久化写入到zookeeper
-        ZookeeperRegisterFactory.buildZookeeperRegister().register(url);
+        String protocol = url.getProtocol();
+        if (StringUtils.isNotEmpty(protocol)) {
+            Class clazz = ExtensionLoader.getExtensionClassMap().get(protocol);
+            try {
+                RegisterFactory registerFactory = (RegisterFactory) clazz.newInstance();
+                registerFactory.createRegister().register(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("没有协议");
+        }
     }
 
 
@@ -181,5 +208,13 @@ public class ServiceConfig {
 
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    public RegisterConfig getRegisterConfig() {
+        return registerConfig;
+    }
+
+    public void setRegisterConfig(RegisterConfig registerConfig) {
+        this.registerConfig = registerConfig;
     }
 }

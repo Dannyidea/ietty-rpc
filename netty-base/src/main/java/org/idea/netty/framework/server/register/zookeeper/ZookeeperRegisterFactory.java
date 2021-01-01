@@ -1,23 +1,22 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
+import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.register.RegisterFactory;
+
 /**
  * @author linhao
  * @date created in 9:23 下午 2020/10/14
  */
-public class ZookeeperRegisterFactory {
+public class ZookeeperRegisterFactory implements RegisterFactory {
 
     private static  ZookeeperRegister zookeeperRegister;
 
-    private ZookeeperRegisterFactory(){
+    public ZookeeperRegisterFactory(){
 
     }
 
-    /**
-     * 初始化注册中心连接器
-     *
-     * @return
-     */
-    public static ZookeeperRegister buildZookeeperRegister(){
+    @Override
+    public Register createRegister() {
         if(zookeeperRegister==null){
             synchronized (ZookeeperRegister.class){
                 if(zookeeperRegister==null){
