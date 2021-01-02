@@ -7,6 +7,6 @@ package org.idea.netty.framework.server.spi;
 public class PersonAction1Impl implements PersonAction {
 
     public void say() {
-        System.out.println("this is 1");
+        System.out.println("this is 1222");
     }
 }

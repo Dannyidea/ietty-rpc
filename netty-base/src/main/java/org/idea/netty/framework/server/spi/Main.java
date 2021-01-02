@@ -11,6 +11,6 @@ public class Main {
     public static void main(String[] args) {
         ServiceLoader<PersonAction> serviceLoader = ServiceLoader.load(PersonAction.class);
         serviceLoader.forEach(PersonAction::say);
-
+        System.out.println("this is test");
     }
 }
