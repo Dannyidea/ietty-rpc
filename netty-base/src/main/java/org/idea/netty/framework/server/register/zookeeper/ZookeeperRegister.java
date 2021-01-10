@@ -1,14 +1,16 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
-import org.I0Itec.zkclient.ZkClient;
 import org.idea.netty.framework.server.common.URL;
-import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.register.support.AbstractZookeeperClient;
+import org.idea.netty.framework.server.register.support.CuratorZookeeperClient;
+import org.idea.netty.framework.server.register.support.FailBackRegistry;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_PORT_KEY;
 import static org.idea.netty.framework.server.common.URL.buildUrlStr;
 
 
@@ -16,41 +18,46 @@ import static org.idea.netty.framework.server.common.URL.buildUrlStr;
  * @author linhao
  * @date created in 11:08 下午 2020/10/13
  */
-public class ZookeeperRegister implements Register {
+public class ZookeeperRegister extends FailBackRegistry  {
 
     private String ROOT = "/ietty";
 
-    private ZkClient zkClient;
+    private AbstractZookeeperClient zkClient;
 
     private final static Integer TIMEOUT = 3000;
 
-    public ZookeeperRegister() {
-        zkClient = new ZkClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY), TIMEOUT);
+    public ZookeeperRegister(URL url) {
+        super(url);
+        zkClient = new CuratorZookeeperClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY), PropertiesUtils.getPropertiesInteger(REGISTER_ADDRESS_PORT_KEY));
     }
 
+
+
     @Override
-    public boolean register(URL url) {
-        if (!zkClient.exists(ROOT)) {
-            zkClient.createPersistent(ROOT);
+    public void doRegister(URL url) {
+        System.out.println("ZookeeperRegister is begin to doRegister");
+        if (!zkClient.existNode(ROOT)) {
+            zkClient.createPersistentData(ROOT,"");
         }
         String serviceName = url.getParameters().get("serviceName");
         String firstChildPath = ROOT + "/" + serviceName;
-        String secondChildPath = firstChildPath + "/provider";
-        if (!zkClient.exists(secondChildPath)) {
-            zkClient.createPersistent(secondChildPath, true);
+        String providerPath = firstChildPath + "/provider";
+        if (!zkClient.existNode(providerPath)) {
+            zkClient.createPersistentData(providerPath, "");
         }
         String urlDataStr = buildUrlStr(url);
-        System.out.println("ietty register config" + urlDataStr);
-        zkClient.writeData(secondChildPath, urlDataStr.getBytes());
-        return true;
+        if(zkClient.existNode(providerPath)) {
+            zkClient.createTemporaryData(providerPath,urlDataStr);
+        }
+        System.out.println("ietty register config is " + urlDataStr);
     }
 
     public boolean consumer(URL url, String nodeData) {
-        zkClient.writeData(url.getPath(), nodeData);
+        zkClient.createTemporaryData(url.getPath(), nodeData);
         return true;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args)   {
 
         Map<String, String> map = new HashMap<>();
         map.put("serviceName", "com.sise.demo.FinanceService");
@@ -59,8 +66,8 @@ public class ZookeeperRegister implements Register {
         map.put("host", "127.0.0.1");
         map.put("port", "8999");
 
-        URL url = new URL("ietty", "username", "password", 9000, map, "/test-path");
-        ZookeeperRegister zookeeperRegister = new ZookeeperRegister();
+        URL url = new URL("ietty", "username", "password","test-application", 9000, map, "/test-path");
+        ZookeeperRegister zookeeperRegister = new ZookeeperRegister(url);
         zookeeperRegister.register(url);
         while (true) {
 
@@ -103,6 +110,21 @@ public class ZookeeperRegister implements Register {
 //        Thread.sleep(1000);
 //        zkClient.delete(url.getPath());
 //        Thread.sleep(Integer.MAX_VALUE);
+
+    }
+
+    @Override
+    public URL getUrl() {
+        return null;
+    }
+
+    @Override
+    public void doSubscribe(URL url) {
+
+    }
+
+    @Override
+    public void doUnSubscribe(URL url) {
 
     }
 }

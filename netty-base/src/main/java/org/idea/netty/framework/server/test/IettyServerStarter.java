@@ -29,6 +29,15 @@ public class IettyServerStarter {
     public static void initServerAndStart(ApplicationConfig applicationConfig,ProtocolConfig protocolConfig,RegisterConfig registerConfig) throws InterruptedException {
         //加载服务类
         String packAgeName = ServerApplication.class.getPackage().getName();
+        //初始化过滤器的spi实现
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        try {
+            extensionLoader.loadDirectory(Filter.class);
+            extensionLoader.loadDirectory(RegisterFactory.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Set<ServiceConfig> serviceConfigSet = AnnotationUtils.getServiceConfigByAnnotation(Service.class, packAgeName);
         for (ServiceConfig serviceConfig : serviceConfigSet) {
             serviceConfig.setApplicationConfig(applicationConfig);
@@ -38,14 +47,7 @@ public class IettyServerStarter {
         ServerApplication.setServerConfigList(serviceConfigSet);
         //构建配置总线，并且写入到zookeeper
 
-        //初始化过滤器的spi实现
-        ExtensionLoader extensionLoader = new ExtensionLoader();
-        try {
-            extensionLoader.loadDirectory(Filter.class);
-            extensionLoader.loadDirectory(RegisterFactory.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         ServerApplication.start();
     }
 
@@ -65,7 +67,7 @@ public class IettyServerStarter {
         registerConfig.setPort(2181);
         registerConfig.setUsername("username");
         registerConfig.setPassword("password");
-        registerConfig.setProtocol("myRegister");
+        registerConfig.setProtocol("zookeeper");
 
         initServerAndStart(applicationConfig,protocolConfig,registerConfig);
 

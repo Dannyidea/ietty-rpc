@@ -1,5 +1,6 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.Register;
 import org.idea.netty.framework.server.register.RegisterFactory;
 
@@ -16,12 +17,12 @@ public class ZookeeperRegisterFactory implements RegisterFactory {
     }
 
     @Override
-    public Register createRegister() {
+    public Register createRegister(URL url) {
         if(zookeeperRegister==null){
             synchronized (ZookeeperRegister.class){
                 if(zookeeperRegister==null){
                     //这里面初始化了zookeeper
-                    zookeeperRegister = new ZookeeperRegister();
+                    zookeeperRegister = new ZookeeperRegister(url);
                 }
             }
         }

@@ -8,9 +8,12 @@ import org.idea.netty.framework.server.common.URL;
  */
 public class MyRegister extends ZookeeperRegister {
 
+    public MyRegister(URL url) {
+        super(url);
+    }
+
     @Override
-    public boolean register(URL url) {
+    public void register(URL url) {
         System.out.println("this is test");
-        return super.register(url);
     }
 }

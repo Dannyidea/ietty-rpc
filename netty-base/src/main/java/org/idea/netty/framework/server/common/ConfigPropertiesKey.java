@@ -7,4 +7,6 @@ package org.idea.netty.framework.server.common;
 public class ConfigPropertiesKey {
 
     public static final String REGISTER_ADDRESS_KEY = "ietty.register.address";
+
+    public static final String REGISTER_ADDRESS_PORT_KEY = "ietty.register.port";
 }

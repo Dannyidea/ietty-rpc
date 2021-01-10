@@ -4,9 +4,11 @@ import org.idea.netty.framework.server.common.URL;
 
 /**
  * @Author linhao
- * @Date created in 5:32 下午 2021/1/1
+ * @Date created in 11:52 上午 2021/1/6
  */
-public interface RegisterFactory {
+public interface Node {
 
-    Register createRegister(URL ur);
+    URL getUrl();
+
+
 }

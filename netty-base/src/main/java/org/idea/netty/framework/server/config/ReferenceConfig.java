@@ -49,6 +49,7 @@ public class ReferenceConfig<T> {
             }
         }
         IettyProtocol iettyProtocol = buildIettyProtocol(invocation);
+        //这里面发送请求到服务端
         channelFuture.channel().writeAndFlush(iettyProtocol);
     }
 

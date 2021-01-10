@@ -1,5 +1,6 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.Register;
 import org.idea.netty.framework.server.register.RegisterFactory;
 
@@ -10,7 +11,7 @@ import org.idea.netty.framework.server.register.RegisterFactory;
 public class MyRegisterFactory implements RegisterFactory {
 
     @Override
-    public Register createRegister() {
-        return new MyRegister();
+    public Register createRegister(URL url) {
+        return new MyRegister(url);
     }
 }

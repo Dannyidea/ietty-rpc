@@ -121,6 +121,7 @@ public class ServiceConfig {
         parameterMap.put("host", registerAddress);
         //默认初始化权重值
         parameterMap.put("weight", "100");
+        url.setApplicationName(this.applicationConfig.getName());
         url.setParameters(parameterMap);
         url.setPath(this.getServiceName());
         String protocol = url.getProtocol();
@@ -128,7 +129,8 @@ public class ServiceConfig {
             Class clazz = ExtensionLoader.getExtensionClassMap().get(protocol);
             try {
                 RegisterFactory registerFactory = (RegisterFactory) clazz.newInstance();
-                registerFactory.createRegister().register(url);
+                Register register = registerFactory.createRegister(url);
+                register.register(url);
             } catch (Exception e) {
                 e.printStackTrace();
             }

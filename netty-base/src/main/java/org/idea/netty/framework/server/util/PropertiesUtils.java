@@ -45,4 +45,20 @@ public class PropertiesUtils {
         }
         return properties.getProperty(key);
     }
+
+    /**
+     * 根据键值获取配置属性
+     *
+     * @param key
+     * @return
+     */
+    public static Integer getPropertiesInteger(String key) {
+        if (properties == null) {
+            return null;
+        }
+        if(StringUtils.isEmpty(key)){
+            return null;
+        }
+        return Integer.valueOf(properties.getProperty(key));
+    }
 }
