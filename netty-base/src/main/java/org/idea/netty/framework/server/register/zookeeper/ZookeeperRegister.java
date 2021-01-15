@@ -42,14 +42,12 @@ public class ZookeeperRegister extends FailBackRegistry  {
         String serviceName = url.getParameters().get("serviceName");
         String firstChildPath = ROOT + "/" + serviceName;
         String providerPath = firstChildPath + "/provider";
-        if (!zkClient.existNode(providerPath)) {
-            zkClient.createPersistentData(providerPath, "");
-        }
+//        if (!zkClient.existNode(providerPath)) {
+//            zkClient.createPersistentData(providerPath, "");
+//        }
         String urlDataStr = buildUrlStr(url);
-        if(zkClient.existNode(providerPath)) {
-            zkClient.createTemporaryData(providerPath,urlDataStr);
-        }
-        System.out.println("ietty register config is " + urlDataStr);
+        zkClient.createTemporaryData(providerPath,urlDataStr);
+        System.out.println("ietty register config is :" + urlDataStr);
     }
 
     public boolean consumer(URL url, String nodeData) {

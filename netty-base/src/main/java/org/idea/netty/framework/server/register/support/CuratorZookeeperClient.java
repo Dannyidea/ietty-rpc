@@ -42,7 +42,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     @Override
     public void createPersistentData(String address, String data) {
         try {
-            client.create().withMode(CreateMode.PERSISTENT).forPath(address, data.getBytes());
+            client.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT).forPath(address, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -51,7 +51,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     @Override
     public void createPersistentWithSeqData(String address, String data) {
         try {
-            client.create().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(address, data.getBytes());
+            client.create().creatingParentContainersIfNeeded().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(address, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,7 +60,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     @Override
     public void createTemporarySeqData(String address, String data) {
         try {
-            client.create().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(address, data.getBytes());
+            client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(address, data.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,7 +69,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     @Override
     public void createTemporaryData(String address, String data) {
         try {
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(address, data.getBytes());
+            client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(address, data.getBytes());
         } catch (KeeperException.NoChildrenForEphemeralsException e) {
             try {
                 client.setData().forPath(address,data.getBytes());

@@ -15,6 +15,7 @@ import org.idea.netty.framework.server.spi.filter.Filter;
 import org.idea.netty.framework.server.spi.filter.IettyServerFilter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
+import sun.jvm.hotspot.runtime.Bytes;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,6 +70,7 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                     Method method = invocationClass.getClass().getMethod(invocation.getMethodName(), clazzArr);
 
                     Map<String, Class<?>> classMap = ExtensionLoader.getExtensionClassMap();
+                    //会优先执行服务端的过滤器，然后再执行对应方法
                     if(isMapNotEmpty(classMap)){
                         String currentFilterName = serviceConfig.getFilter();
                         if(StringUtils.isNotEmpty(currentFilterName)){
@@ -76,7 +78,14 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                             filter.doFilter(invocation);
                         }
                     }
-                    method.invoke(invocationClass, args);
+                    if(method.getReturnType().equals(Void.TYPE.getName())){
+                        method.invoke(invocationClass,args);
+                    } else {
+                        Object returnVal = method.invoke(invocationClass,args);
+                        byte[] bytes = returnVal.toString().getBytes();
+                        //响应结果数据
+                        data.setBody(bytes);
+                    }
                 } catch (InstantiationException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
@@ -84,6 +93,7 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         });
+        //响应的内容
         ctx.writeAndFlush(data);
     }
 

@@ -1,13 +1,10 @@
 package org.idea.netty.framework.server.config;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.internal.StringUtil;
 import lombok.ToString;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.Register;
 import org.idea.netty.framework.server.register.RegisterFactory;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
 

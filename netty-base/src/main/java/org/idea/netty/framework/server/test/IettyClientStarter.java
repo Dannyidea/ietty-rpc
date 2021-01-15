@@ -24,7 +24,7 @@ public class IettyClientStarter {
         Test t = referenceConfig.get();
         while (true) {
             Thread.sleep(1000);
-            t.doTest("idea");
+            t.testStr("idea");
             System.out.println("发送消息");
         }
     }

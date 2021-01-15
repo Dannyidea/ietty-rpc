@@ -7,4 +7,6 @@ package org.idea.netty.framework.server.test;
 public interface Test {
 
     void doTest(String arg);
+
+    String testStr(String arg);
 }

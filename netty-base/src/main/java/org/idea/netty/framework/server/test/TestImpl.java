@@ -13,4 +13,12 @@ public class TestImpl implements Test {
     public void doTest(String arg) {
         System.out.println("this is doTest: arg is :" + arg);
     }
+
+    @Override
+    public String testStr(String arg) {
+        System.out.println("test");
+        return "success-" + arg;
+    }
+
+
 }
