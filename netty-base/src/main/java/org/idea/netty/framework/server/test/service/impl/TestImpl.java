@@ -1,6 +1,7 @@
-package org.idea.netty.framework.server.test;
+package org.idea.netty.framework.server.test.service.impl;
 
 import org.idea.netty.framework.server.common.Service;
+import org.idea.netty.framework.server.test.service.Test;
 
 /**
  * @author linhao

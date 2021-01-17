@@ -1,4 +1,4 @@
-package org.idea.netty.framework.server.test;
+package org.idea.netty.framework.server.test.service;
 
 /**
  * @author linhao

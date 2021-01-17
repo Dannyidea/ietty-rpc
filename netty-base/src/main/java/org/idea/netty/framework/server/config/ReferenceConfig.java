@@ -1,11 +1,8 @@
 package org.idea.netty.framework.server.config;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import lombok.Data;
 import org.idea.netty.framework.server.ClientApplication;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
-import org.idea.netty.framework.server.test.Test;
 
 import java.io.UnsupportedEncodingException;
 

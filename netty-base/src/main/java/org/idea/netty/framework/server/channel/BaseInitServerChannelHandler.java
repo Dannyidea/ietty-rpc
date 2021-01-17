@@ -34,11 +34,8 @@ import static org.idea.netty.framework.server.util.CollectionUtils.isMapNotEmpty
 @ChannelHandler.Sharable
 public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
 
-    private static int i = 0;
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        i++;
         IettyProtocol data = (IettyProtocol) msg;
         Invocation invocation = toInvocationFromByte(data.getBody());
         AllChannelHandler.channelRead(new Runnable() {
@@ -78,7 +75,7 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                             filter.doFilter(invocation);
                         }
                     }
-                    if(method.getReturnType().equals(Void.TYPE.getName())){
+                    if(method.getReturnType().getName().equals(Void.TYPE.getName())){
                         method.invoke(invocationClass,args);
                     } else {
                         Object returnVal = method.invoke(invocationClass,args);
@@ -86,6 +83,8 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                         //响应结果数据
                         data.setBody(bytes);
                     }
+                    //响应的内容
+                    ctx.writeAndFlush(data);
                 } catch (InstantiationException e) {
                     e.printStackTrace();
                 } catch (IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
@@ -93,18 +92,17 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         });
-        //响应的内容
-        ctx.writeAndFlush(data);
     }
 
     @Override
     public void channelReadComplete(final ChannelHandlerContext ctx) {
+        System.out.println("通道刷新");
         ctx.flush();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        System.out.println("出现了异常问题");
+        System.err.println("出现了异常问题"+cause);
         super.exceptionCaught(ctx, cause);
         ctx.close();
     }

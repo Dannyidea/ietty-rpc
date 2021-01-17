@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import org.idea.netty.framework.server.config.IettyProtocol;
+import org.idea.netty.framework.server.proxy.JdkProxyFactory;
 
 
 /**
@@ -15,13 +16,12 @@ public class BaseInitClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("[client] 接收到消息");
-        byte[] response = msg.toString().getBytes();
         IettyProtocol iettyProtocol = (IettyProtocol) msg;
-        System.out.println(iettyProtocol.toString());
         byte[] bytes = iettyProtocol.getBody();
         String resultMsg = new String(bytes);
+        //接收请求并且处理响应信息
         System.out.println(resultMsg);
+        JdkProxyFactory.returnValue = resultMsg;
         //释放内存信息
         ReferenceCountUtil.release(msg);
     }

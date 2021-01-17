@@ -46,7 +46,7 @@ public class IettyProtocol implements Serializable {
     private short status;
 
     /**
-     * 消息体
+     * 消息体 请求方发送的函数类型，参数信息都存在这里， 接收方响应的信息也都存在这里
      */
     private byte[] body;
 

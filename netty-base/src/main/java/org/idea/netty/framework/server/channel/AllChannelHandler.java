@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AllChannelHandler {
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8,8,1, TimeUnit.MINUTES
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2,8,1, TimeUnit.MINUTES
     ,new SynchronousQueue<>(),new ThreadPoolExecutor.AbortPolicy());
 
     public static void channelRead(Runnable r){
