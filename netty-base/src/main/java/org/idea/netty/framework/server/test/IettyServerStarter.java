@@ -46,8 +46,6 @@ public class IettyServerStarter {
         }
         ServerApplication.setServerConfigList(serviceConfigSet);
         //构建配置总线，并且写入到zookeeper
-
-
         ServerApplication.start();
     }
 

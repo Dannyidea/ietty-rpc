@@ -26,15 +26,15 @@ public class IettyClientStarter {
         Test testImpl = (Test) buildReference(Test.class,"testImpl","test-application");
         UserService userService = (UserService) buildReference(UserService.class,"userService","test-application");
         GoodsService goodsService = (GoodsService) buildReference(GoodsService.class,"goodsService","test-application");
+        userService.findAll();
 
         while (true) {
 //            testImpl.doTest("test");
 //            testImpl.testStr("idea");
 //            userService.addUser();
-            userService.findAll();
 //            goodsService.addGoods();
 //            goodsService.findAll();
-            Thread.sleep(500);
+            Thread.sleep(5000);
         }
     }
 

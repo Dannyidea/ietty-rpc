@@ -18,7 +18,9 @@ public class IettyProtocol implements Serializable {
     /**
      * 魔数
      */
-    protected short MAGIC = 0;
+    protected long MAGIC = 0;
+
+    private String requestId;
 
     /**
      * 0请求 1响应
@@ -50,11 +52,11 @@ public class IettyProtocol implements Serializable {
      */
     private byte[] body;
 
-    public short getMAGIC() {
+    public long getMAGIC() {
         return MAGIC;
     }
 
-    public void setMAGIC(short MAGIC) {
+    public void setMAGIC(long MAGIC) {
         this.MAGIC = MAGIC;
     }
 
@@ -100,6 +102,14 @@ public class IettyProtocol implements Serializable {
 
     public void setBody(byte[] body) {
         this.body = body;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     @Override

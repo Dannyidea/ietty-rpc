@@ -15,7 +15,6 @@ import org.idea.netty.framework.server.spi.filter.Filter;
 import org.idea.netty.framework.server.spi.filter.IettyServerFilter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
-import sun.jvm.hotspot.runtime.Bytes;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

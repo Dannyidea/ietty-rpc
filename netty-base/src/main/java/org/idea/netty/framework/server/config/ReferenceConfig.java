@@ -5,6 +5,8 @@ import org.idea.netty.framework.server.ClientApplication;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * @author linhao
@@ -28,6 +30,7 @@ public class ReferenceConfig<T> {
 
     private ChannelFuture channelFuture;
 
+    private String requestId;
 
     /**
      * 执行远程调用
@@ -46,12 +49,14 @@ public class ReferenceConfig<T> {
             }
         }
         IettyProtocol iettyProtocol = buildIettyProtocol(invocation);
+        System.out.println("请求的魔数：" + iettyProtocol.getMAGIC());
         //这里面发送请求到服务端
         channelFuture.channel().writeAndFlush(iettyProtocol);
     }
 
-    public T get(){
-        return JdkProxyFactory.getProxy(interfaceClass,this);
+    public T get() {
+        this.requestId = UUID.randomUUID().toString();
+        return JdkProxyFactory.getProxy(interfaceClass, this);
     }
 
     /**
@@ -66,9 +71,11 @@ public class ReferenceConfig<T> {
         iettyProtocol.setEvent((byte) 1);
         iettyProtocol.setReqOrResp((byte) 0);
         iettyProtocol.setSerializationType("jdk");
+        iettyProtocol.setRequestId(this.getRequestId());
         //0正常请求状态
         iettyProtocol.setStatus((short) 0);
-        iettyProtocol.setMAGIC((short) 0xdabb);
+        //随机数字
+        iettyProtocol.setMAGIC(new Random().nextInt(10000));
         return iettyProtocol;
     }
 
@@ -112,4 +119,11 @@ public class ReferenceConfig<T> {
         this.channelFuture = channelFuture;
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 }

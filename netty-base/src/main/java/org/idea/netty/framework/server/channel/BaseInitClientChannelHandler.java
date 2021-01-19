@@ -6,6 +6,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
+import org.idea.netty.framework.server.rpc.RpcContext;
+
+import static org.idea.netty.framework.server.proxy.JdkProxyFactory.RPC_CONTEXT_MAP;
 
 
 /**
@@ -17,11 +20,17 @@ public class BaseInitClientChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         IettyProtocol iettyProtocol = (IettyProtocol) msg;
+        System.out.println("响应的魔数："+iettyProtocol.getMAGIC());
         byte[] bytes = iettyProtocol.getBody();
         String resultMsg = new String(bytes);
         //接收请求并且处理响应信息
         System.out.println(resultMsg);
-        JdkProxyFactory.returnValue = resultMsg;
+        RpcContext rpcContext = RPC_CONTEXT_MAP.get(iettyProtocol.getRequestId());
+        if(rpcContext!=null){
+            rpcContext.setResponseData(resultMsg);
+            rpcContext.setFinish(false);
+            RPC_CONTEXT_MAP.put(iettyProtocol.getRequestId(),rpcContext);
+        }
         //释放内存信息
         ReferenceCountUtil.release(msg);
     }

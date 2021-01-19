@@ -1,6 +1,5 @@
 package org.idea.netty.framework.server.register.support;
 
-import com.oracle.tools.packager.Log;
 import org.idea.netty.framework.server.common.Node;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.common.utils.ConcurrentHashSet;
@@ -86,7 +85,6 @@ public abstract class AbstractRegistry implements Node, RegistryService {
             syncSaveThreadPool.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Log.info("");
                     doSaveCacheInDisk(url);
                 }
             });
