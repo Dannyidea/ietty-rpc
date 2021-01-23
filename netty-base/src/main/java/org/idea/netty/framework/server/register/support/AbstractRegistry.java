@@ -4,11 +4,15 @@ import org.idea.netty.framework.server.common.Node;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.common.utils.ConcurrentHashSet;
 import org.idea.netty.framework.server.register.RegistryService;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
+import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.io.*;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.*;
+
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.LOCAL_URL_STORE_LOCATION;
 
 /**
  * 抽象注册服务类
@@ -44,6 +48,18 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         this.currentUrl = currentUrl;
     }
 
+
+    /**
+     * 构建本地url存储持久化的路径
+     *
+     * @param url
+     * @param prefix
+     * @return
+     */
+    private String buildLocalUrlStorePath(URL url,String prefix){
+        return prefix + "_" + url.getApplicationName().toUpperCase();
+    }
+
     /**
      * 会将注册文件写入到一个流里面，然后持久化写入一份文件当中
      *
@@ -53,13 +69,19 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         this.currentUrl = url;
         this.syncSaveFile = (boolean) url.getParameter("syncSaveFile",false);
         String pathUrl = System.getProperty("user.home");
-        String saveFilePath = pathUrl + "/.dubbo/dubbo-registry-" + url.getApplicationName();
+        String saveFilePath = buildLocalUrlStorePath(url,pathUrl);
         if (registryConfigFile == null) {
             registryConfigFile = new File(saveFilePath);
             try {
                 registryConfigFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                //可能是没有权限写入数据
+                try {
+                    registryConfigFile = new File(buildLocalUrlStorePath(url,PropertiesUtils.getPropertiesStr(LOCAL_URL_STORE_LOCATION)));
+                    registryConfigFile.createNewFile();
+                }catch (Exception exp){
+                      throw new RuntimeException(exp);
+                }
             }
         }
         if (registryConfigFile.exists()) {
@@ -92,12 +114,12 @@ public abstract class AbstractRegistry implements Node, RegistryService {
     }
 
     /**
-     * 保存缓存持久化到磁盘中
+     * 保存缓存持久化到磁盘中 这个操作应该设计在父类中，然后子类实现不同的doRegistry方法，但是细节点都会有共同点是用于实现持久化的步骤
      *
      * @param url
      */
     private void doSaveCacheInDisk(URL url){
-        properties.setProperty(url.getApplicationName(), url.toString());
+        properties.setProperty(url.getPath(), URL.buildUrlStr(url));
         try (FileOutputStream outputStream = new FileOutputStream(registryConfigFile)) {
             properties.store(outputStream, "Ietty Registry Cache");
         } catch (Exception e) {
@@ -110,6 +132,8 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         registryURLSet.remove(url);
     }
 
-    public static void main(String[] args) {
+    public Set<URL> getRegistryURLSet(){
+        return  registryURLSet;
     }
+
 }

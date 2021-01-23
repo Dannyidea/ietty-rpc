@@ -2,17 +2,21 @@ package org.idea.netty.framework.server.test;
 
 import org.idea.netty.framework.server.ServerApplication;
 import org.idea.netty.framework.server.common.Service;
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ApplicationConfig;
 import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.RegisterConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
 import org.idea.netty.framework.server.register.Register;
 import org.idea.netty.framework.server.register.RegisterFactory;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 import org.idea.netty.framework.server.spi.filter.Filter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.AnnotationUtils;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -45,13 +49,31 @@ public class IettyServerStarter {
             serviceConfig.setRegisterConfig(registerConfig);
         }
         ServerApplication.setServerConfigList(serviceConfigSet);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ZookeeperRegister zookeeperRegister = ZookeeperRegisterFactory.getZookeeperRegister();
+                if(zookeeperRegister==null){
+                    return;
+                }
+                Set<URL> urlSet = zookeeperRegister.getRegistryURLSet();
+                Iterator<URL> iterator = urlSet.iterator();
+                while (iterator.hasNext()){
+                    URL url = iterator.next();
+                    zookeeperRegister.unRegister(url);
+                }
+                System.out.println("exit ietty");
+            }
+        }));
+
         //构建配置总线，并且写入到zookeeper
         ServerApplication.start();
     }
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationConfig applicationConfig = new ApplicationConfig();
-        applicationConfig.setName("test-application");
+        applicationConfig.setName("ietty-v2-application");
         applicationConfig.setOwner("linhao");
         applicationConfig.setVersion("1.0.0");
 

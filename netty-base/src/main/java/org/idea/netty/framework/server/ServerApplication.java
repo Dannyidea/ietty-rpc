@@ -11,7 +11,10 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.idea.netty.framework.server.channel.BaseInitServerChannelHandler;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,18 +40,18 @@ public class ServerApplication {
 
     private static Set<ServiceConfig> serviceConfigSet;
 
-    private static Map<String,ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
+    private static Map<String, ServiceConfig> serviceConfigMap = new ConcurrentHashMap<>();
 
     private static short DEFAULT_PORT = 9099;
 
     private static boolean isStart = false;
 
 
-    public static boolean isServerStart(){
+    public static boolean isServerStart() {
         return isStart;
     }
 
-    public static void setServerConfigList(Set<ServiceConfig> serviceConfigListParam){
+    public static void setServerConfigList(Set<ServiceConfig> serviceConfigListParam) {
         serviceConfigSet = serviceConfigListParam;
         serviceConfigMap = new ConcurrentHashMap<>();
         for (ServiceConfig serviceConfig : serviceConfigSet) {
@@ -56,12 +59,12 @@ public class ServerApplication {
             url.setUsername("username");
             url.setPassword("password");
             serviceConfig.export(url);
-            serviceConfigMap.putIfAbsent(serviceConfig.getInterfaceName(),serviceConfig);
+            serviceConfigMap.putIfAbsent(serviceConfig.getInterfaceName(), serviceConfig);
         }
     }
 
 
-    public static ServiceConfig getServiceConfig(String serviceName){
+    public static ServiceConfig getServiceConfig(String serviceName) {
         return serviceConfigMap.get(serviceName);
     }
 
@@ -99,6 +102,8 @@ public class ServerApplication {
         isStart = true;
         System.out.println("===================== netty-simply-server is start success ===================== ");
         channelFuture.channel().closeFuture().sync();
+        //增加一个shutdownhook配置
+
         serverGroup.shutdownGracefully();
         clientGroup.shutdownGracefully();
     }

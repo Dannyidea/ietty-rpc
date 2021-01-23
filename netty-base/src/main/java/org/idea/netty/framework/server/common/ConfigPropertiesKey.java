@@ -9,4 +9,6 @@ public class ConfigPropertiesKey {
     public static final String REGISTER_ADDRESS_KEY = "ietty.register.address";
 
     public static final String REGISTER_ADDRESS_PORT_KEY = "ietty.register.port";
+
+    public static final String LOCAL_URL_STORE_LOCATION = "ietty.url.store.location";
 }

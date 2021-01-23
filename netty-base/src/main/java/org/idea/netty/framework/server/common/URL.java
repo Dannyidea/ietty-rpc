@@ -36,11 +36,6 @@ public class URL implements Serializable {
      */
     private  String path;
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     public URL() {
     }
 
@@ -142,6 +137,20 @@ public class URL implements Serializable {
     public Object getParameter(String key,Object defaultValue){
         Object value =  this.getParameters().get(key);
         return value!=null ? value : defaultValue;
+    }
+
+    @Override
+    public String toString() {
+        return "URL{" +
+                "protocol='" + protocol + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", port=" + port +
+                ", syncSaveFile=" + syncSaveFile +
+                ", parameters=" + parameters +
+                ", path='" + path + '\'' +
+                '}';
     }
 
     public static String buildUrlStr(URL url) {

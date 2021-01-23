@@ -13,8 +13,12 @@ public class ZookeeperRegisterFactory implements RegisterFactory {
     private static  ZookeeperRegister zookeeperRegister;
 
     public ZookeeperRegisterFactory(){
-
     }
+
+    public static ZookeeperRegister getZookeeperRegister(){
+        return zookeeperRegister;
+    }
+
 
     @Override
     public Register createRegister(URL url) {

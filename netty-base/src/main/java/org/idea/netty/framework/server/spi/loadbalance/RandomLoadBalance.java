@@ -27,7 +27,6 @@ public class RandomLoadBalance implements LoadBalance {
             if (StringUtils.isNotEmpty(weightStr)) {
                 weight[i] = Integer.parseInt(weightStr);
             }
-
         }
         if (sameWeight) {
 

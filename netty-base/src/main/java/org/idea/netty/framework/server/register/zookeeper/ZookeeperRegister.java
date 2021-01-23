@@ -7,7 +7,9 @@ import org.idea.netty.framework.server.register.support.FailBackRegistry;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_PORT_KEY;
@@ -39,15 +41,26 @@ public class ZookeeperRegister extends FailBackRegistry  {
         if (!zkClient.existNode(ROOT)) {
             zkClient.createPersistentData(ROOT,"");
         }
-        String serviceName = url.getParameters().get("serviceName");
-        String firstChildPath = ROOT + "/" + serviceName;
-        String providerPath = firstChildPath + "/provider";
-//        if (!zkClient.existNode(providerPath)) {
-//            zkClient.createPersistentData(providerPath, "");
-//        }
+        String providerPath = ROOT + "/" + url.getParameters().get("serviceName") + "/provider";
         String urlDataStr = buildUrlStr(url);
         zkClient.createTemporaryData(providerPath,urlDataStr);
         System.out.println("ietty register config is :" + urlDataStr);
+    }
+
+    @Override
+    public void unRegister(URL url) {
+        super.unRegister(url);
+        String servicePath = ROOT + "/" + url.getParameters().get("serviceName");
+        String providerPath = servicePath + "/provider";
+        try {
+            zkClient.deleteNode(providerPath);
+        }catch (Exception e){
+        }
+        try {
+            zkClient.deleteNode(servicePath);
+        }catch (Exception e){
+
+        }
     }
 
     public boolean consumer(URL url, String nodeData) {
@@ -64,9 +77,21 @@ public class ZookeeperRegister extends FailBackRegistry  {
         map.put("host", "127.0.0.1");
         map.put("port", "8999");
 
-        URL url = new URL("ietty", "username", "password","test-application", 9000, map, "/test-path");
-        ZookeeperRegister zookeeperRegister = new ZookeeperRegister(url);
-        zookeeperRegister.register(url);
+        URL url11 = new URL("ietty", "idea", "root","test-application", 9000, map, "test-path");
+
+        Map<String, String> map2 = new HashMap<>();
+        map2.put("serviceName", "com.sise.demo.UserService");
+        map2.put("methods", "test&&get&&list&&insert&&update");
+        map2.put("weight", "180");
+        map2.put("host", "127.0.0.1");
+        map2.put("port", "8999");
+        URL url12 = new URL("ietty", "idea", "root","test-application", 9000, map2, "test-path2");
+
+
+        ZookeeperRegister testRegister = new ZookeeperRegister(url11);
+        testRegister.register(url11);
+        testRegister.register(url12);
+
         while (true) {
 
         }

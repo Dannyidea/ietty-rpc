@@ -18,7 +18,6 @@ public interface LoadBalance {
      * @param invokers
      * @param url
      * @param invocation
-     * @param <T>
      * @return
      */
     Invoker doSelect(List<Invoker> invokers, URL url, Invocation invocation);

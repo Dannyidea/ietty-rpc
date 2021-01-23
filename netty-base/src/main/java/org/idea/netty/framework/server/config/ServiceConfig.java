@@ -107,14 +107,14 @@ public class ServiceConfig {
     }
 
     protected synchronized void doExport(URL url) {
+        String[] methodNamesArr = this.getMethodNames();
+        String registerAddress = this.getProtocolConfig().getHost();
+        System.out.println(Arrays.toString(methodNamesArr));
         //在这里进行服务写入到zookeeper并且构建配置总线
         Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("serviceName", this.getServiceName());
-        String[] methodNamesArr = this.getMethodNames();
-        System.out.println(Arrays.toString(methodNamesArr));
         parameterMap.put("methods", Arrays.toString(methodNamesArr));
         parameterMap.put("port", String.valueOf(this.getProtocolConfig().getPort()));
-        String registerAddress = this.getProtocolConfig().getHost();
         parameterMap.put("host", registerAddress);
         //默认初始化权重值
         parameterMap.put("weight", "100");
@@ -125,6 +125,8 @@ public class ServiceConfig {
         if (StringUtils.isNotEmpty(protocol)) {
             Class clazz = ExtensionLoader.getExtensionClassMap().get(protocol);
             try {
+                //通过spi扩展查到真正的注册中心实现类 这里可以进行优化改造，没必要每个url注册的时候都做一次实力化
+                //可以将clazz放在一个弱引用列表中，启动完毕之后直接抛弃
                 RegisterFactory registerFactory = (RegisterFactory) clazz.newInstance();
                 Register register = registerFactory.createRegister(url);
                 register.register(url);

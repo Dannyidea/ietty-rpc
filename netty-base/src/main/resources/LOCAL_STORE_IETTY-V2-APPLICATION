@@ -1,0 +1,5 @@
+#Ietty Registry Cache
+#Sat Jan 23 15:32:27 CST 2021
+org.idea.netty.framework.server.test.service.impl.GoodsServiceImpl=zookeeper\://org.idea.netty.framework.server.test.service.impl.GoodsServiceImpl;[wait, wait, wait, equals, toString, hashCode, getClass, notify, notifyAll];100;127.0.0.1;8089;username;password
+org.idea.netty.framework.server.test.service.impl.TestImpl=zookeeper\://org.idea.netty.framework.server.test.service.impl.TestImpl;[wait, wait, wait, equals, toString, hashCode, getClass, notify, notifyAll];100;127.0.0.1;8089;username;password
+org.idea.netty.framework.server.test.service.impl.UserServiceImpl=zookeeper\://org.idea.netty.framework.server.test.service.impl.UserServiceImpl;[wait, wait, wait, equals, toString, hashCode, getClass, notify, notifyAll];100;127.0.0.1;8089;username;password
