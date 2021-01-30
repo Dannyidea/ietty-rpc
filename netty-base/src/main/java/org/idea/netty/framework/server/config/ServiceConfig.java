@@ -120,7 +120,7 @@ public class ServiceConfig {
         parameterMap.put("weight", "100");
         url.setApplicationName(this.applicationConfig.getName());
         url.setParameters(parameterMap);
-        url.setPath(this.getServiceName());
+        url.setPath(this.getInterfaceName());
         String protocol = url.getProtocol();
         if (StringUtils.isNotEmpty(protocol)) {
             Class clazz = ExtensionLoader.getExtensionClassMap().get(protocol);

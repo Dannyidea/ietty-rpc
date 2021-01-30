@@ -8,7 +8,7 @@ import org.idea.netty.framework.server.config.Invocation;
  * @author linhao
  * @date created in 4:19 下午 2020/10/11
  */
-public class IettyServerFilter implements Filter{
+public class IettyServerFilter implements ProviderFilter{
 
     /**
      * 执行过滤器函数

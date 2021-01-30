@@ -1,5 +1,6 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
+import io.netty.util.internal.StringUtil;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.support.AbstractZookeeperClient;
 import org.idea.netty.framework.server.register.support.CuratorZookeeperClient;
@@ -9,7 +10,6 @@ import org.idea.netty.framework.server.util.PropertiesUtils;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_PORT_KEY;
@@ -20,7 +20,7 @@ import static org.idea.netty.framework.server.common.URL.buildUrlStr;
  * @author linhao
  * @date created in 11:08 下午 2020/10/13
  */
-public class ZookeeperRegister extends FailBackRegistry  {
+public class ZookeeperRegister extends FailBackRegistry {
 
     private String ROOT = "/ietty";
 
@@ -28,22 +28,28 @@ public class ZookeeperRegister extends FailBackRegistry  {
 
     private final static Integer TIMEOUT = 3000;
 
+
     public ZookeeperRegister(URL url) {
         super(url);
         zkClient = new CuratorZookeeperClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY), PropertiesUtils.getPropertiesInteger(REGISTER_ADDRESS_PORT_KEY));
     }
 
 
-
     @Override
     public void doRegister(URL url) {
         System.out.println("ZookeeperRegister is begin to doRegister");
         if (!zkClient.existNode(ROOT)) {
-            zkClient.createPersistentData(ROOT,"");
+            zkClient.createPersistentData(ROOT, "");
         }
         String providerPath = ROOT + "/" + url.getParameters().get("serviceName") + "/provider";
         String urlDataStr = buildUrlStr(url);
-        zkClient.createTemporaryData(providerPath,urlDataStr);
+        String originNodeData = zkClient.getNodeData(providerPath);
+        if (!StringUtil.isNullOrEmpty(originNodeData)) {
+            System.out.println("原节点数据：" + originNodeData);
+            zkClient.updateNodeData(providerPath, originNodeData + "##" + urlDataStr);
+        } else {
+            zkClient.createTemporaryData(providerPath, urlDataStr);
+        }
         System.out.println("ietty register config is :" + urlDataStr);
     }
 
@@ -54,11 +60,11 @@ public class ZookeeperRegister extends FailBackRegistry  {
         String providerPath = servicePath + "/provider";
         try {
             zkClient.deleteNode(providerPath);
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         try {
             zkClient.deleteNode(servicePath);
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
@@ -68,7 +74,7 @@ public class ZookeeperRegister extends FailBackRegistry  {
         return true;
     }
 
-    public static void main(String[] args)   {
+    public static void main(String[] args) throws InterruptedException {
 
         Map<String, String> map = new HashMap<>();
         map.put("serviceName", "com.sise.demo.FinanceService");
@@ -77,7 +83,7 @@ public class ZookeeperRegister extends FailBackRegistry  {
         map.put("host", "127.0.0.1");
         map.put("port", "8999");
 
-        URL url11 = new URL("ietty", "idea", "root","test-application", 9000, map, "test-path");
+        URL url11 = new URL("ietty", "idea", "root", "test-application", 9000, map, "test-path");
 
         Map<String, String> map2 = new HashMap<>();
         map2.put("serviceName", "com.sise.demo.UserService");
@@ -85,15 +91,16 @@ public class ZookeeperRegister extends FailBackRegistry  {
         map2.put("weight", "180");
         map2.put("host", "127.0.0.1");
         map2.put("port", "8999");
-        URL url12 = new URL("ietty", "idea", "root","test-application", 9000, map2, "test-path2");
+        URL url12 = new URL("ietty", "idea", "root", "test-application", 9000, map2, "test-path2");
 
 
         ZookeeperRegister testRegister = new ZookeeperRegister(url11);
         testRegister.register(url11);
-        testRegister.register(url12);
+        testRegister.register(url11);
 
         while (true) {
-
+            Thread.sleep(5000);
+            System.out.println("===");
         }
 //        ZkClient zkClient = new ZkClient(zookeeperAddress, TIMEOUT);
 //        zkClient.createEphemeral("/ietty/com.sise.test");

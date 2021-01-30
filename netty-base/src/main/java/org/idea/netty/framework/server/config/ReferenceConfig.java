@@ -2,11 +2,13 @@ package org.idea.netty.framework.server.config;
 
 import io.netty.channel.ChannelFuture;
 import org.idea.netty.framework.server.ClientApplication;
+import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
+import org.idea.netty.framework.server.rpc.filter.IettyConsumerFilterChain;
+import org.idea.netty.framework.server.util.CollectionUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author linhao
@@ -32,6 +34,11 @@ public class ReferenceConfig<T> {
 
     private String requestId;
 
+    private String serviceName;
+
+    private List<ChannelFuture> channelFutureList = new LinkedList<>();
+
+    private List<URL> urls;
     /**
      * 执行远程调用
      *
@@ -39,17 +46,21 @@ public class ReferenceConfig<T> {
      * @return
      */
     public void doRef(Invocation invocation) {
-        if (channelFuture == null) {
+        //这里面需要先执行一系列的过滤链路filter 每个filter都会返回一个invoker对象
+        //过滤逻辑中会吧invocation中的urls不断筛选，最终只需要一个url配置
+        IettyConsumerFilterChain.doFilter(invocation);
+        if (CollectionUtils.isEmpty(channelFutureList)) {
             try {
-                channelFuture = ClientApplication.initClient();
+                channelFuture = ClientApplication.initClient(invocation.getReferUrl());
+                channelFutureList.add(channelFuture);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
+//        ClusterInvoker clusterInvoker = new ClusterInvoker();
         IettyProtocol iettyProtocol = buildIettyProtocol(invocation);
-        System.out.println("请求的魔数：" + iettyProtocol.getMAGIC());
         //这里面发送请求到服务端
         channelFuture.channel().writeAndFlush(iettyProtocol);
     }
@@ -125,5 +136,21 @@ public class ReferenceConfig<T> {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public List<URL> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(List<URL> urls) {
+        this.urls = urls;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

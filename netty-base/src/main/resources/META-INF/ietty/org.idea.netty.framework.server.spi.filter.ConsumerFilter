@@ -1,0 +1,1 @@
+consumerFilter=org.idea.netty.framework.server.spi.filter.ConsumerFilter

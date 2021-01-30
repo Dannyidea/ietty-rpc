@@ -1,10 +1,14 @@
 package org.idea.netty.framework.server.common;
 
 
+import org.idea.netty.framework.server.config.ReferenceConfig;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 配置总线
@@ -14,27 +18,26 @@ import java.util.Map;
  */
 public class URL implements Serializable {
 
-    private  String protocol;
+    private String protocol;
 
-    private  String username;
+    private String username;
 
-    private  String password;
+    private String password;
 
     private String applicationName;
 
-    private  int port;
+    private int port;
 
     private boolean syncSaveFile;
-
     /**
      * 包含了很多类型信息，包含种类有 方面名称列表，参数列表，权重，服务提供者地址，服务提供者端口号，创建节点的属性（临时节点还是持久化节点）
      */
-    private  Map<String, String> parameters;
+    private Map<String, String> parameters = new ConcurrentHashMap<>();
 
     /**
      * 方法全称呼 com.sise.idea.test.DemoService
      */
-    private  String path;
+    private String path;
 
     public URL() {
     }
@@ -125,19 +128,20 @@ public class URL implements Serializable {
         this.applicationName = applicationName;
     }
 
-
-    private String toServicePath(){
+    private String toServicePath() {
         return "";
     }
 
-    private String toCategorieaPath(){
+    private String toCategorieaPath() {
         return "";
     }
 
-    public Object getParameter(String key,Object defaultValue){
-        Object value =  this.getParameters().get(key);
-        return value!=null ? value : defaultValue;
+    public Object getParameter(String key, Object defaultValue) {
+        Object value = this.getParameters().get(key);
+        return value != null ? value : defaultValue;
     }
+
+
 
     @Override
     public String toString() {
@@ -160,5 +164,29 @@ public class URL implements Serializable {
         String port = url.getParameters().get("port");
         return new String((url.getProtocol() + "://" + url.getPath() + ";" + methods + ";" + weight + ";" + host + ";" + port + ";"
                 + url.getUsername() + ";" + url.getPassword()).getBytes(), StandardCharsets.UTF_8);
+    }
+
+    public static URL convertFromUrlStr(String urlStr) {
+        String protocol = urlStr.substring(0, urlStr.indexOf("://"));
+        String path = urlStr.substring(protocol.length()+3, urlStr.indexOf(";"));
+        String[] items = urlStr.split(";");
+        String method = items[1];
+        String weight = items[2];
+        String host = items[3];
+        String port = items[4];
+        String username = items[5];
+        String password = items[6];
+        URL url = new URL();
+        url.setPath(path);
+        url.setProtocol(protocol);
+        Map<String,String> parameterMap = new HashMap<>();
+        parameterMap.put("method",method);
+        parameterMap.put("port",port);
+        parameterMap.put("weight",weight);
+        parameterMap.put("host",host);
+        url.setParameters(parameterMap);
+        url.setUsername(username);
+        url.setPassword(password);
+        return url;
     }
 }

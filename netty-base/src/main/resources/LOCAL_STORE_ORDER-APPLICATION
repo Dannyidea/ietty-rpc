@@ -1,4 +1,0 @@
-#Ietty Registry Cache
-#Sat Jan 23 15:06:04 CST 2021
-order-path2=ietty\://order-path2;test&&get&&list&&insert&&update;180;127.0.0.1;8999;idea;root
-order-path=ietty\://order-path;test&&get&&list&&insert&&update;180;127.0.0.1;8999;idea;root

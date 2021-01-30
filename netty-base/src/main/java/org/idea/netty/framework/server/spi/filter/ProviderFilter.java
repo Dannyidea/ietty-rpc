@@ -8,7 +8,7 @@ import org.idea.netty.framework.server.config.Invocation;
  * @author linhao
  * @date created in 4:21 下午 2020/10/11
  */
-public interface Filter {
+public interface ProviderFilter {
 
     /**
      * 执行过滤链路

@@ -5,7 +5,9 @@ import io.netty.util.internal.StringUtil;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author linhao
@@ -15,7 +17,13 @@ public class PropertiesUtils {
 
     private static Properties properties;
 
-    private static String DEFAULT_PROPERTIES_FILE = "/Users/linhao/IdeaProjects/netty-frameworke/netty-base/src/main/resources/ietty.properties";
+    private static Map<String,String> propertiesMap = new ConcurrentHashMap<>();
+
+    private static String DEFAULT_PROPERTIES_FILE = "/Users/linhao/IdeaProjects/netty-framework/netty-base/src/main/resources/ietty.properties";
+
+    public static void putPropertiesValue(String key,String value){
+        propertiesMap.put(key,value);
+    }
 
     static {
         properties = new Properties();
@@ -43,7 +51,11 @@ public class PropertiesUtils {
         if(StringUtils.isEmpty(key)){
             return null;
         }
-        return properties.getProperty(key);
+        if(!propertiesMap.containsKey(key)){
+            String value =  properties.getProperty(key);
+            propertiesMap.put(key,value);
+        }
+        return String.valueOf(propertiesMap.get(key));
     }
 
     /**
@@ -59,6 +71,10 @@ public class PropertiesUtils {
         if(StringUtils.isEmpty(key)){
             return null;
         }
-        return Integer.valueOf(properties.getProperty(key));
+        if(!propertiesMap.containsKey(key)){
+            String value =  properties.getProperty(key);
+            propertiesMap.put(key,value);
+        }
+        return Integer.valueOf(propertiesMap.get(key));
     }
 }

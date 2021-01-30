@@ -1,8 +1,10 @@
 package org.idea.netty.framework.server.config;
 
 import com.alibaba.fastjson.JSON;
+import org.idea.netty.framework.server.common.URL;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +30,10 @@ public class Invocation implements Serializable {
     private Object[] arguments;
 
     private Map<String, Object> attachments;
+
+    private List<URL> urls;
+
+    private URL referUrl;
 
     public String getServiceVersion() {
         return serviceVersion;
@@ -89,5 +95,19 @@ public class Invocation implements Serializable {
         return JSON.toJSON(this).toString().getBytes();
     }
 
+    public List<URL> getUrls() {
+        return urls;
+    }
 
+    public void setUrls(List<URL> urls) {
+        this.urls = urls;
+    }
+
+    public URL getReferUrl() {
+        return referUrl;
+    }
+
+    public void setReferUrl(URL referUrl) {
+        this.referUrl = referUrl;
+    }
 }

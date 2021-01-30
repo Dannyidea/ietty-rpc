@@ -9,8 +9,11 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.idea.netty.framework.server.channel.BaseInitClientChannelHandler;
+import org.idea.netty.framework.server.common.URL;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author linhao
@@ -25,7 +28,9 @@ public class ClientApplication {
     private static boolean channelFutureIsReady = false;
     private static ChannelFuture channelFuture;
 
-    public static ChannelFuture initClient() throws InterruptedException, UnsupportedEncodingException {
+    private static List<String> server = new ArrayList<>();
+
+    public static ChannelFuture initClient(URL url) throws InterruptedException, UnsupportedEncodingException {
         if (channelFuture != null) {
             return channelFuture;
         }
@@ -43,7 +48,8 @@ public class ClientApplication {
                 ch.pipeline().addLast(new BaseInitClientChannelHandler());
             }
         });
-        channelFuture = bootstrap.connect(HOST, PORT).sync();
+        //todo
+        channelFuture = bootstrap.connect(url.getParameters().get("host"), Integer.parseInt(url.getParameters().get("port"))).sync();
         return channelFuture;
     }
 

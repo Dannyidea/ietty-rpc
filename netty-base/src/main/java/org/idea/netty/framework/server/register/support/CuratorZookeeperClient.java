@@ -38,6 +38,30 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
         }
     }
 
+    @Override
+    public void updateNodeData(String address, String data) {
+        try {
+            client.setData().forPath(address, data.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getNodeData(String address) {
+        try {
+            byte[] result = client.getData().forPath(address);
+            if (result != null) {
+                return new String(result);
+            }
+        } catch (KeeperException.NoNodeException e) {
+            return null;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     @Override
     public void createPersistentData(String address, String data) {
@@ -72,11 +96,11 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
             client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(address, data.getBytes());
         } catch (KeeperException.NoChildrenForEphemeralsException e) {
             try {
-                client.setData().forPath(address,data.getBytes());
+                client.setData().forPath(address, data.getBytes());
             } catch (Exception ex) {
                 throw new IllegalStateException(ex.getMessage(), ex);
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
     }
@@ -84,7 +108,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     @Override
     public void setTemporaryData(String address, String data) {
         try {
-            client.setData().forPath(address,data.getBytes());
+            client.setData().forPath(address, data.getBytes());
         } catch (Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
@@ -128,31 +152,16 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        AbstractZookeeperClient abstractZookeeperClient = new CuratorZookeeperClient("127.0.0.1",2181);
-//        abstractZookeeperClient.createPersistentData("/test","");
-        abstractZookeeperClient.createTemporaryData("/test/provider","");
-        abstractZookeeperClient.createTemporaryData("/test/provider/children","url2");
-//        abstractZookeeperClient.createPersistentData("/test","");
-//        abstractZookeeperClient.createPersistentData("/test/node-persistent","test-node-value");
-//        abstractZookeeperClient.createPersistentWithSeqData("/test/node-persistent-seq","test-node-value");
-//        abstractZookeeperClient.createTemporaryData("/test/node-temporary","test-node-value");
-//        abstractZookeeperClient.createTemporarySeqData("/test/node-temporary-seq","test-node-value");
-//        boolean status = abstractZookeeperClient.existNode("/test/node-persistent");
-//        System.out.println(status);
+        AbstractZookeeperClient abstractZookeeperClient = new CuratorZookeeperClient("127.0.0.1", 2181);
+        abstractZookeeperClient.createTemporaryData("/test/provider", "");
+        abstractZookeeperClient.createTemporaryData("/test/provider/children", "url2");
         List<String> nodes = abstractZookeeperClient.listNode("/test");
         for (String node : nodes) {
-            List<String> childrenNode = abstractZookeeperClient.listNode("/test/"+node+"/children");
+            List<String> childrenNode = abstractZookeeperClient.listNode("/test/" + node + "/children");
             for (String childNode : childrenNode) {
                 System.out.println(childNode);
             }
-//            System.out.println(node);
         }
-//        Thread.sleep(900000);
-//        abstractZookeeperClient.deleteNode("/test/node-persistent-seq0000000001");
-//        List<String> nodes2 = abstractZookeeperClient.listNode("/test");
-//        for (String node : nodes2) {
-//            System.out.println(node);
-//        }
     }
 
 }

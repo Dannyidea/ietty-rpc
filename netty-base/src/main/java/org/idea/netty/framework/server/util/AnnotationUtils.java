@@ -7,6 +7,7 @@ import org.idea.netty.framework.server.test.service.impl.TestImpl;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -33,17 +34,18 @@ public class AnnotationUtils {
                 Service service = (Service) aClass.getAnnotation(Service.class);
                 ServiceConfig serviceConfig = new ServiceConfig();
                 //父类接口
-                serviceConfig.setInterfaceClass(aClass.getInterfaces().getClass());
+                Class<?> clazz[] = aClass.getInterfaces();
+                serviceConfig.setInterfaceClass(clazz[0]);
                 serviceConfig.setInterfaceImplClass(aClass);
                 serviceConfig.setInterfaceName(service.interfaceName());
-                serviceConfig.setServiceName(aClass.getName());
+                serviceConfig.setServiceName(clazz[0].getName());
                 ProtocolConfig protocolConfig = new ProtocolConfig();
                 //todo
                 protocolConfig.setPort(9090);
                 protocolConfig.setName("ietty");
                 protocolConfig.setHost("www.idea.com");
 
-                if(service.delay()>0){
+                if (service.delay() > 0) {
                     serviceConfig.setDelay(service.delay());
                 }
                 serviceConfig.setProtocolConfig(protocolConfig);

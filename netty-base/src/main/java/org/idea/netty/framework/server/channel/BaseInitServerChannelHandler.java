@@ -1,18 +1,14 @@
 package org.idea.netty.framework.server.channel;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.idea.netty.framework.server.ServerApplication;
-import org.idea.netty.framework.server.bean.User;
 import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.config.Invocation;
 import org.idea.netty.framework.server.config.ServiceConfig;
-import org.idea.netty.framework.server.spi.filter.Filter;
-import org.idea.netty.framework.server.spi.filter.IettyServerFilter;
+import org.idea.netty.framework.server.spi.filter.ProviderFilter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
 
@@ -44,7 +40,8 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
                     //注意如果是个接口则不能进行实现
                     ServiceConfig serviceConfig = ServerApplication.getServiceConfig(invocation.getServiceName());
                     if (serviceConfig == null) {
-                        throw new RuntimeException("serviceConfig can not be null!");
+                        throw new RuntimeException("serviceConfig can not be null, "+invocation.getServiceName()+"" +
+                                " could not be found in ServerApplication.serviceConfigMap");
                     }
                     Object invocationClass = serviceConfig.getInterfaceImplClass().newInstance();
                     String[] methodParameterTypeArr = invocation.getMethodParameterTypes();
@@ -67,17 +64,17 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
 
                     Map<String, Class<?>> classMap = ExtensionLoader.getExtensionClassMap();
                     //会优先执行服务端的过滤器，然后再执行对应方法
-                    if(isMapNotEmpty(classMap)){
+                    if (isMapNotEmpty(classMap)) {
                         String currentFilterName = serviceConfig.getFilter();
-                        if(StringUtils.isNotEmpty(currentFilterName)){
-                            Filter filter = (Filter) initClassInstance(currentFilterName);
-                            filter.doFilter(invocation);
+                        if (StringUtils.isNotEmpty(currentFilterName)) {
+                            ProviderFilter providerFilter = (ProviderFilter) initClassInstance(currentFilterName);
+                            providerFilter.doFilter(invocation);
                         }
                     }
-                    if(method.getReturnType().getName().equals(Void.TYPE.getName())){
-                        method.invoke(invocationClass,args);
+                    if (method.getReturnType().getName().equals(Void.TYPE.getName())) {
+                        method.invoke(invocationClass, args);
                     } else {
-                        Object returnVal = method.invoke(invocationClass,args);
+                        Object returnVal = method.invoke(invocationClass, args);
                         byte[] bytes = returnVal.toString().getBytes();
                         //响应结果数据
                         data.setBody(bytes);
@@ -101,7 +98,7 @@ public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        System.err.println("出现了异常问题"+cause);
+        System.err.println("出现了异常问题" + cause);
         super.exceptionCaught(ctx, cause);
         ctx.close();
     }

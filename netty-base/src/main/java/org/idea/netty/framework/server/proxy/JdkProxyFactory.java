@@ -23,46 +23,13 @@ public class JdkProxyFactory {
 
     public static Map<String, RpcContext> RPC_CONTEXT_MAP = new ConcurrentHashMap<>();
 
-    private static ExecutorService requestHandlerExecutorService = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(20), new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r,"ierry-jdk-proxy-thread");
-        }
-    });
-
-    private static ExecutorService responseHandlerExecutorService = new ThreadPoolExecutor(2, 2, 30, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(20), new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r,"ierry-jdk-proxy-thread");
-        }
-    });
-
     public static <T> T getProxy(final Class interfaceClass,ReferenceConfig referenceConfig){
 
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),new Class[]{interfaceClass},new InvocationHandler(){
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                requestHandlerExecutorService.submit(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        requestProvider (interfaceClass,referenceConfig,proxy,method,args);
-//                        RPC_CONTEXT_MAP.put(referenceConfig.getRequestId(),new RpcContext(false,null));
-//                    }
-//                });
-//                System.out.println("test");
-                int j =0;
-                for(;;){
-                    j++;
-                    if(2>3){
-                        break;
-                    }
-                }
-//                while (!(RPC_CONTEXT_MAP.get(referenceConfig.getRequestId())!=null && RPC_CONTEXT_MAP.get(referenceConfig.getRequestId()).isFinish())){
-//                    System.out.println("wait");
-//                    System.out.println(RPC_CONTEXT_MAP.get(referenceConfig.getRequestId()));
-//                }
+                requestProvider (interfaceClass,referenceConfig,proxy,method,args);
+                RPC_CONTEXT_MAP.put(referenceConfig.getRequestId(),new RpcContext(false,null));
                 return RPC_CONTEXT_MAP.get(referenceConfig.getRequestId()).getResponseData();
             }
         });
@@ -78,7 +45,6 @@ public class JdkProxyFactory {
      * @param args
      */
     public static void requestProvider(final Class interfaceClass,ReferenceConfig referenceConfig,Object proxy, Method method, Object[] args){
-        System.out.println("执行代理方法"+method.getName());
         Invocation invocation = new Invocation();
         invocation.setMethodName(method.getName());
         if(args!=null){
@@ -90,11 +56,11 @@ public class JdkProxyFactory {
             invocation.setMethodParameterTypes(argsType);
             invocation.setArguments(args);
         }
-        invocation.setServiceName(referenceConfig.getInterfaceName());
+        invocation.setServiceName(referenceConfig.getServiceName());
         invocation.setServiceClass(interfaceClass);
         invocation.setServiceVersion("1.0.0");
         invocation.setAttachments(new HashMap<>(1));
-
+        invocation.setUrls(referenceConfig.getUrls());
         //发送请求
         referenceConfig.doRef(invocation);
     }

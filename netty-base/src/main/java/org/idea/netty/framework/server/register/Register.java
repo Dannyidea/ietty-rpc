@@ -1,6 +1,5 @@
 package org.idea.netty.framework.server.register;
 
-import org.idea.netty.framework.server.common.URL;
 
 /**
  * @author linhao

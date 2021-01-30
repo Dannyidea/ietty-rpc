@@ -1,7 +1,6 @@
 package org.idea.netty.framework.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.bootstrap.ServerBootstrapConfig;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -11,13 +10,13 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.idea.netty.framework.server.channel.BaseInitServerChannelHandler;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ServiceConfig;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
+import org.idea.netty.framework.server.util.PropertiesUtils;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.IETTY_PROTOCOL_PORT;
 
 /**
  * @author linhao
@@ -98,7 +97,7 @@ public class ServerApplication {
             }
         });
 
-        ChannelFuture channelFuture = serverBootstrap.bind(DEFAULT_PORT).sync();
+        ChannelFuture channelFuture = serverBootstrap.bind(PropertiesUtils.getPropertiesInteger(IETTY_PROTOCOL_PORT)).sync();
         isStart = true;
         System.out.println("===================== netty-simply-server is start success ===================== ");
         channelFuture.channel().closeFuture().sync();

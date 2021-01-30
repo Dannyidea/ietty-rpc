@@ -54,6 +54,16 @@ public abstract class AbstractZookeeperClient {
         this.maxRetryTimes = maxRetryTimes;
     }
 
+    public abstract void updateNodeData(String address, String data);
+
+    /**
+     * 拉去节点的数据
+     *
+     * @param address
+     * @return
+     */
+    public abstract String getNodeData(String address);
+
     /**
      * 创建持久化类型节点数据信息
      *

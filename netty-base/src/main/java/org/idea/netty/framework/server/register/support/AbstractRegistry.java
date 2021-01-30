@@ -29,6 +29,7 @@ public abstract class AbstractRegistry implements Node, RegistryService {
     private URL currentUrl;
     private File registryConfigFile;
     private boolean syncSaveFile = false;
+    private boolean saveUrlInDisk = false;
     private Properties properties = new Properties();
     private ExecutorService syncSaveThreadPool = new ThreadPoolExecutor(1, 1,
             3L, TimeUnit.SECONDS,
@@ -37,7 +38,7 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         public Thread newThread(Runnable r) {
             return new Thread(r, "syncSaveFile_pool_" + r.hashCode());
         }
-    },new ThreadPoolExecutor.AbortPolicy());
+    }, new ThreadPoolExecutor.AbortPolicy());
 
     @Override
     public URL getUrl() {
@@ -56,7 +57,7 @@ public abstract class AbstractRegistry implements Node, RegistryService {
      * @param prefix
      * @return
      */
-    private String buildLocalUrlStorePath(URL url,String prefix){
+    private String buildLocalUrlStorePath(URL url, String prefix) {
         return prefix + "_" + url.getApplicationName().toUpperCase();
     }
 
@@ -67,9 +68,14 @@ public abstract class AbstractRegistry implements Node, RegistryService {
      */
     public AbstractRegistry(URL url) {
         this.currentUrl = url;
-        this.syncSaveFile = (boolean) url.getParameter("syncSaveFile",false);
+        this.syncSaveFile = (boolean) url.getParameter("syncSaveFile", false);
+        this.saveUrlInDisk = (boolean) url.getParameter("saveUrlInDisk", true);
+        if (!saveUrlInDisk) {
+            System.out.println("不需要将url持久化到数据库");
+            return;
+        }
         String pathUrl = System.getProperty("user.home");
-        String saveFilePath = buildLocalUrlStorePath(url,pathUrl);
+        String saveFilePath = buildLocalUrlStorePath(url, pathUrl);
         if (registryConfigFile == null) {
             registryConfigFile = new File(saveFilePath);
             try {
@@ -77,10 +83,10 @@ public abstract class AbstractRegistry implements Node, RegistryService {
             } catch (IOException e) {
                 //可能是没有权限写入数据
                 try {
-                    registryConfigFile = new File(buildLocalUrlStorePath(url,PropertiesUtils.getPropertiesStr(LOCAL_URL_STORE_LOCATION)));
+                    registryConfigFile = new File(buildLocalUrlStorePath(url, PropertiesUtils.getPropertiesStr(LOCAL_URL_STORE_LOCATION)));
                     registryConfigFile.createNewFile();
-                }catch (Exception exp){
-                      throw new RuntimeException(exp);
+                } catch (Exception exp) {
+                    throw new RuntimeException(exp);
                 }
             }
         }
@@ -101,7 +107,7 @@ public abstract class AbstractRegistry implements Node, RegistryService {
     @Override
     public void register(URL url) {
         registryURLSet.add(url);
-        if(syncSaveFile){
+        if (syncSaveFile) {
             this.doSaveCacheInDisk(url);
         } else {
             syncSaveThreadPool.submit(new Runnable() {
@@ -118,7 +124,7 @@ public abstract class AbstractRegistry implements Node, RegistryService {
      *
      * @param url
      */
-    private void doSaveCacheInDisk(URL url){
+    private void doSaveCacheInDisk(URL url) {
         properties.setProperty(url.getPath(), URL.buildUrlStr(url));
         try (FileOutputStream outputStream = new FileOutputStream(registryConfigFile)) {
             properties.store(outputStream, "Ietty Registry Cache");
@@ -132,8 +138,8 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         registryURLSet.remove(url);
     }
 
-    public Set<URL> getRegistryURLSet(){
-        return  registryURLSet;
+    public Set<URL> getRegistryURLSet() {
+        return registryURLSet;
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
  * @Author linhao
  * @Date created in 5:54 下午 2021/1/15
  */
-@Service(interfaceName = "goodsServiceImpl")
+@Service(interfaceName = "goodsService")
 public class GoodsServiceImpl implements GoodsService {
 
     @Override
