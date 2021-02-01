@@ -24,11 +24,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public List<String> findAll() {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        System.out.println("findAll");
         return Arrays.asList("t1","t2");
     }
 }

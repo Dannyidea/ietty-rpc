@@ -1,0 +1,3 @@
+#Ietty Registry Cache
+#Wed Jan 27 18:41:16 CST 2021
+test-path=ietty\://test-path;test&&get&&list&&insert&&update;180;127.0.0.1;8999;idea;root

@@ -57,7 +57,7 @@ public abstract class AbstractZookeeperClient {
     public abstract void updateNodeData(String address, String data);
 
     /**
-     * 拉去节点的数据
+     * 拉取节点的数据
      *
      * @param address
      * @return

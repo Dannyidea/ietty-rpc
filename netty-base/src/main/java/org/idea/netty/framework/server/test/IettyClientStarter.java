@@ -38,7 +38,7 @@ public class IettyClientStarter {
 
     private static List<ReferenceConfig> referenceConfigs = new LinkedList<>();
 
-    private static Map<String,ReferenceConfig> referenceMaps = new ConcurrentHashMap<>();
+    private static Map<String, ReferenceConfig> referenceMaps = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationConfig applicationConfig = new ApplicationConfig();
@@ -51,13 +51,13 @@ public class IettyClientStarter {
         referenceConfig.setInterfaceClass(Test.class);
         referenceConfig.setInterfaceName("testImpl");
 
-        ReferenceConfig<GoodsService> refer =  buildReference(GoodsService.class, "goodsService", "test-application");
+        ReferenceConfig<GoodsService> refer = buildReference(GoodsService.class, "goodsService", "test-application");
         initClientConfig();
         GoodsService goodsService = refer.get();
         //获取zk的配置url
         while (true) {
             goodsService.findAll();
-            Thread.sleep(5000);
+            Thread.sleep(1500);
         }
     }
 
@@ -80,13 +80,16 @@ public class IettyClientStarter {
         for (ReferenceConfig config : IettyClientStarter.referenceConfigs) {
             String className = config.getInterfaceName();
             String providerData = abstractZookeeperClient.getNodeData("/ietty/" + className + "/provider");
-            URL url = URL.convertFromUrlStr(providerData);
-            url.getParameters().get("host");
-            url.getParameters().get("port");
+            String urlArr[] = providerData.split("##");
             List<URL> urls = new ArrayList<>();
-            urls.add(url);
+            for (String url : urlArr) {
+                URL currentUrl = URL.convertFromUrlStr(url);
+                currentUrl.getParameters().get("host");
+                currentUrl.getParameters().get("port");
+                urls.add(currentUrl);
+            }
             config.setUrls(urls);
-            referenceMaps.put(className,config);
+            referenceMaps.put(className, config);
         }
     }
 

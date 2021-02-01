@@ -14,6 +14,8 @@ import org.idea.netty.framework.server.common.URL;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author linhao
@@ -26,11 +28,12 @@ public class ClientApplication {
     private static final String HOST = "127.0.0.1";
     private static final short PORT = 9099;
     private static boolean channelFutureIsReady = false;
-    private static ChannelFuture channelFuture;
+    private static Map<URL,ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
 
     private static List<String> server = new ArrayList<>();
 
     public static ChannelFuture initClient(URL url) throws InterruptedException, UnsupportedEncodingException {
+        ChannelFuture channelFuture = channelFutureMap.get(url);
         if (channelFuture != null) {
             return channelFuture;
         }
@@ -50,14 +53,8 @@ public class ClientApplication {
         });
         //todo
         channelFuture = bootstrap.connect(url.getParameters().get("host"), Integer.parseInt(url.getParameters().get("port"))).sync();
+        channelFutureMap.put(url,channelFuture);
         return channelFuture;
     }
 
-    public ChannelFuture getChannelFuture() {
-        return channelFuture;
-    }
-
-    public void sendMsg(byte[] msg) {
-        channelFuture.channel().writeAndFlush(msg);
-    }
 }

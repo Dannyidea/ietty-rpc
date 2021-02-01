@@ -9,6 +9,7 @@ import org.idea.netty.framework.server.util.CollectionUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author linhao
@@ -30,15 +31,12 @@ public class ReferenceConfig<T> {
 
     private String application;
 
-    private ChannelFuture channelFuture;
-
     private String requestId;
 
     private String serviceName;
 
-    private List<ChannelFuture> channelFutureList = new LinkedList<>();
-
     private List<URL> urls;
+
     /**
      * 执行远程调用
      *
@@ -49,17 +47,14 @@ public class ReferenceConfig<T> {
         //这里面需要先执行一系列的过滤链路filter 每个filter都会返回一个invoker对象
         //过滤逻辑中会吧invocation中的urls不断筛选，最终只需要一个url配置
         IettyConsumerFilterChain.doFilter(invocation);
-        if (CollectionUtils.isEmpty(channelFutureList)) {
-            try {
-                channelFuture = ClientApplication.initClient(invocation.getReferUrl());
-                channelFutureList.add(channelFuture);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+        String port = invocation.getReferUrl().getParameters().get("port");
+        System.out.println(port);
+        ChannelFuture channelFuture = null;
+        try {
+            channelFuture = ClientApplication.initClient(invocation.getReferUrl());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-//        ClusterInvoker clusterInvoker = new ClusterInvoker();
         IettyProtocol iettyProtocol = buildIettyProtocol(invocation);
         //这里面发送请求到服务端
         channelFuture.channel().writeAndFlush(iettyProtocol);
@@ -120,14 +115,6 @@ public class ReferenceConfig<T> {
 
     public void setApplication(String application) {
         this.application = application;
-    }
-
-    public ChannelFuture getChannelFuture() {
-        return channelFuture;
-    }
-
-    public void setChannelFuture(ChannelFuture channelFuture) {
-        this.channelFuture = channelFuture;
     }
 
     public String getRequestId() {

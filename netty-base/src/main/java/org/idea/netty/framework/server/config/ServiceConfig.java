@@ -109,7 +109,6 @@ public class ServiceConfig {
     protected synchronized void doExport(URL url) {
         String[] methodNamesArr = this.getMethodNames();
         String registerAddress = this.getProtocolConfig().getHost();
-        System.out.println(Arrays.toString(methodNamesArr));
         //在这里进行服务写入到zookeeper并且构建配置总线
         Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("serviceName", this.getServiceName());

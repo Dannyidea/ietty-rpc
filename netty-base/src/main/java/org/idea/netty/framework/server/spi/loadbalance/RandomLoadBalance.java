@@ -19,18 +19,7 @@ public class RandomLoadBalance implements LoadBalance {
 
     @Override
     public Invoker doSelect(List<Invoker> invokerList, URL url, Invocation invocation) {
-        int[] weight = new int[invokerList.size()];
-        boolean sameWeight = true;
-        for (int i = 0; i < invokerList.size(); i++) {
-            url = invokerList.get(i).getUrl();
-            String weightStr = url.getParameters().get("weight");
-            if (StringUtils.isNotEmpty(weightStr)) {
-                weight[i] = Integer.parseInt(weightStr);
-            }
-        }
-        if (sameWeight) {
 
-        }
         return null;
     }
 }

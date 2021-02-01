@@ -98,7 +98,7 @@ public class IettyServerStarter {
         ProtocolConfig protocolConfig = new ProtocolConfig();
         protocolConfig.setHost("127.0.0.1");
         protocolConfig.setName("ietty-2");
-        protocolConfig.setPort(8094);
+        protocolConfig.setPort(8091);
 
         RegisterConfig registerConfig = new RegisterConfig();
         registerConfig.setAddress("127.0.0.1");

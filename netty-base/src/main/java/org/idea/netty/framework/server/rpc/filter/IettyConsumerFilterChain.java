@@ -15,8 +15,9 @@ public class IettyConsumerFilterChain {
     private static List<ConsumerFilter> filterList = new LinkedList<>();
 
     static {
-        filterList.add(new IettyConsumerInitFilter());
-        filterList.add(new IettyClusterFilter());
+//        filterList.add(new IettyConsumerInitFilter());
+//        filterList.add(new IettyClusterFilter());
+        filterList.add(new RandomLoadBalanceFilter());
     }
 
     public IettyConsumerFilterChain(){

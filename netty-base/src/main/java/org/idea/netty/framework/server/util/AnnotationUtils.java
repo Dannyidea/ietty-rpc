@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
@@ -49,15 +51,20 @@ public class AnnotationUtils {
                     serviceConfig.setDelay(service.delay());
                 }
                 serviceConfig.setProtocolConfig(protocolConfig);
-                Method[] methods = aClass.getInterfaces().getClass().getMethods();
-                String[] methodNameArr = new String[methods.length];
-                for (int i = 0; i < methods.length; i++) {
-                    methodNameArr[i] = methods[i].getName();
+                List<String> methodList = new ArrayList<>();
+                Method[] methods = aClass.getDeclaredMethods();
+                for (Method method : methods) {
+                    if(method.isAnnotationPresent(Override.class)){
+                        methodList.add(method.getName());
+                    }
                 }
-                serviceConfig.setMethodNames(methodNameArr);
+                String[] methodArr = new String[methodList.size()];
+                for (int i=0;i<methodList.size();i++) {
+                    methodArr[i] = methodList.get(i);
+                }
+                serviceConfig.setMethodNames(methodArr);
                 serviceConfig.setFilter(service.filter());
                 serviceConfigHashSet.add(serviceConfig);
-                System.out.println("[ietty] add serviceConfig " + serviceConfig.toString());
             }
         }
         return serviceConfigHashSet;
