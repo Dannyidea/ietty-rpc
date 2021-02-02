@@ -54,12 +54,12 @@ public class IettyServerStarter {
             serviceConfig.setRegisterConfig(registerConfig);
         }
         ServerApplication.setServerConfigList(serviceConfigSet);
-
+        //todo
+        ZookeeperRegister zookeeperRegister = ZookeeperRegisterFactory.getZookeeperRegister();
+        zookeeperRegister.startListenTask();
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                //todo
-                ZookeeperRegister zookeeperRegister = ZookeeperRegisterFactory.getZookeeperRegister();
                 if (zookeeperRegister == null) {
                     return;
                 }
@@ -98,7 +98,7 @@ public class IettyServerStarter {
         ProtocolConfig protocolConfig = new ProtocolConfig();
         protocolConfig.setHost("127.0.0.1");
         protocolConfig.setName("ietty-2");
-        protocolConfig.setPort(8091);
+        protocolConfig.setPort(8090);
 
         RegisterConfig registerConfig = new RegisterConfig();
         registerConfig.setAddress("127.0.0.1");

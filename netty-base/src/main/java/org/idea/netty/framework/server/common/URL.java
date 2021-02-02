@@ -142,7 +142,6 @@ public class URL implements Serializable {
     }
 
 
-
     @Override
     public String toString() {
         return "URL{" +
@@ -180,7 +179,7 @@ public class URL implements Serializable {
         url.setPath(path);
         url.setProtocol(protocol);
         Map<String,String> parameterMap = new HashMap<>();
-        parameterMap.put("method",method);
+        parameterMap.put("methods",method);
         parameterMap.put("port",port);
         parameterMap.put("weight",weight);
         parameterMap.put("host",host);

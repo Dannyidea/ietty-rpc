@@ -43,26 +43,30 @@ public class IettyClient {
     public static void main(String[] args) {
         IettyClient iettyClient = new IettyClient();
         while (true) {
-            System.out.println("input your cmd");
-            System.out.println("===============|||||||||||||||||||============");
-            System.out.println("1 查询节点url属性");
-            System.out.println("2 更新节点权重");
-            Scanner scanner = new Scanner(System.in);
-            int input = scanner.nextInt();
-            switch (input) {
-                case 1:
-                    iettyClient.listIettyProviderNode();
-                    break;
-                case 2:
-                    iettyClient.updateNodeWeight();
-                    break;
+            try {
+                System.out.println("input your cmd");
+                System.out.println("===============|||||||||||||||||||============");
+                System.out.println("1 查询节点url属性");
+                System.out.println("2 更新节点权重");
+                Scanner scanner = new Scanner(System.in);
+                int input = scanner.nextInt();
+                switch (input) {
+                    case 1:
+                        iettyClient.listIettyProviderNode();
+                        break;
+                    case 2:
+                        iettyClient.updateNodeWeight();
+                        break;
+                }
+                System.out.println("===============|||||||||||||||||||============");
+            }catch (Exception e) {
+                System.err.println("@@@@@@@@@@@@@@@ input error,exp is "+e);
             }
-            System.out.println("===============|||||||||||||||||||============");
+
         }
     }
 
     public void listIettyProviderNode() {
-
 
         for (ServiceConfig serviceConfig : serviceConfigSet) {
             String urls = abstractZookeeperClient.getNodeData("/ietty/" + serviceConfig.getInterfaceClass().getName() + "/provider");

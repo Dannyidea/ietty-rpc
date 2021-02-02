@@ -15,10 +15,8 @@ public interface LoadBalance {
     /**
      * 选择相应的服务模块
      *
-     * @param invokers
-     * @param url
      * @param invocation
      * @return
      */
-    Invoker doSelect(List<Invoker> invokers, URL url, Invocation invocation);
+    void doSelect(Invocation invocation);
 }

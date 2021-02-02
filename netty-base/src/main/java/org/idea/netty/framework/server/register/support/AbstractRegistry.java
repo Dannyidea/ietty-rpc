@@ -4,7 +4,6 @@ import org.idea.netty.framework.server.common.Node;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.common.utils.ConcurrentHashSet;
 import org.idea.netty.framework.server.register.RegistryService;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.io.*;

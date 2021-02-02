@@ -1,16 +1,28 @@
 package org.idea.netty.framework.server.register.support;
 
 
+import com.sun.security.ntlm.Client;
+import io.netty.util.internal.StringUtil;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
+import org.idea.netty.framework.server.common.event.EventObject;
+import org.idea.netty.framework.server.common.event.EventTypeEnum;
+import org.idea.netty.framework.server.common.event.ZookeeperRegistryEventHandler;
+import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.util.Collections;
 import java.util.List;
+
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.ROOT_PATH;
 
 /**
  * 基于CuratorZookeeper操作zk的节点
@@ -20,7 +32,6 @@ import java.util.List;
  */
 public class CuratorZookeeperClient extends AbstractZookeeperClient {
 
-    private CuratorFramework curatorFramework;
     private String address;
     private CuratorFramework client;
 
@@ -36,6 +47,11 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
             client = CuratorFrameworkFactory.newClient(this.address, retryPolicy);
             client.start();
         }
+    }
+
+    @Override
+    public CuratorFramework getClient(){
+        return client;
     }
 
     @Override
@@ -56,7 +72,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
             }
         } catch (KeeperException.NoNodeException e) {
             return null;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

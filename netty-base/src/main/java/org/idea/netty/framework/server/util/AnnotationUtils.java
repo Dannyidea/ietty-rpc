@@ -3,6 +3,7 @@ package org.idea.netty.framework.server.util;
 import org.idea.netty.framework.server.common.Service;
 import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.test.service.Test;
 import org.idea.netty.framework.server.test.service.impl.TestImpl;
 
 import java.io.File;
@@ -52,14 +53,14 @@ public class AnnotationUtils {
                 }
                 serviceConfig.setProtocolConfig(protocolConfig);
                 List<String> methodList = new ArrayList<>();
-                Method[] methods = aClass.getDeclaredMethods();
+                Class[] classes = aClass.getInterfaces();
+                Class interfaceClazz = classes[0];
+                Method[] methods = interfaceClazz.getDeclaredMethods();
                 for (Method method : methods) {
-                    if(method.isAnnotationPresent(Override.class)){
-                        methodList.add(method.getName());
-                    }
+                    methodList.add(method.getName());
                 }
                 String[] methodArr = new String[methodList.size()];
-                for (int i=0;i<methodList.size();i++) {
+                for (int i = 0; i < methodList.size(); i++) {
                     methodArr[i] = methodList.get(i);
                 }
                 serviceConfig.setMethodNames(methodArr);
@@ -151,9 +152,9 @@ public class AnnotationUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(TestImpl.class.getSimpleName());
-        System.out.println(TestImpl.class.getTypeName());
-        System.out.println(TestImpl.class.getName());
-        System.out.println(TestImpl.class.getPackage() + "." + TestImpl.class.getName());
+        Method[] methods = Test.class.getMethods();
+        for (Method method : methods) {
+            System.out.println(method.getName());
+        }
     }
 }

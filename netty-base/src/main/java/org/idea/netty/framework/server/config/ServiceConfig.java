@@ -116,7 +116,7 @@ public class ServiceConfig {
         parameterMap.put("port", String.valueOf(this.getProtocolConfig().getPort()));
         parameterMap.put("host", registerAddress);
         //默认初始化权重值
-        parameterMap.put("weight", "100");
+        parameterMap.put("weight", "1");
         url.setApplicationName(this.applicationConfig.getName());
         url.setParameters(parameterMap);
         url.setPath(this.getInterfaceName());
@@ -129,6 +129,7 @@ public class ServiceConfig {
                 RegisterFactory registerFactory = (RegisterFactory) clazz.newInstance();
                 Register register = registerFactory.createRegister(url);
                 register.register(url);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

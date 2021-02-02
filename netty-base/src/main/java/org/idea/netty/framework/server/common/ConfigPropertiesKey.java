@@ -23,4 +23,18 @@ public class ConfigPropertiesKey {
     public static final String LOCAL_URL_STORE_LOCATION = "ietty.url.store.location";
 
     public static final String LOCAL_URL_CLIENT_STORE_LOCATION = "ietty.url.client.store.location";
+
+    public static final String ROOT_PATH = "/ietty";
+
+    public enum NODE_EVENT_TYPE {
+        NODE_UPDATED("NODE_UPDATED","节点更新"),
+        NODE_ADDED("NODE_ADDED","节点新增");
+        String eventName;
+        String desc;
+
+        NODE_EVENT_TYPE(String eventName, String desc) {
+            this.eventName = eventName;
+            this.desc = desc;
+        }
+    }
 }

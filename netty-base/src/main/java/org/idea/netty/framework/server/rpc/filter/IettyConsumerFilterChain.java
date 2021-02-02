@@ -17,7 +17,7 @@ public class IettyConsumerFilterChain {
     static {
 //        filterList.add(new IettyConsumerInitFilter());
 //        filterList.add(new IettyClusterFilter());
-        filterList.add(new RandomLoadBalanceFilter());
+        filterList.add(new LoadBalanceFilter());
     }
 
     public IettyConsumerFilterChain(){

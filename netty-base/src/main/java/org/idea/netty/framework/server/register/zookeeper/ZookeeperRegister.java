@@ -1,18 +1,23 @@
 package org.idea.netty.framework.server.register.zookeeper;
 
 import io.netty.util.internal.StringUtil;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.idea.netty.framework.server.common.URL;
+import org.idea.netty.framework.server.common.event.EventObject;
+import org.idea.netty.framework.server.common.event.EventTypeEnum;
+import org.idea.netty.framework.server.common.event.ZookeeperRegistryEventHandler;
 import org.idea.netty.framework.server.register.support.AbstractZookeeperClient;
 import org.idea.netty.framework.server.register.support.CuratorZookeeperClient;
 import org.idea.netty.framework.server.register.support.FailBackRegistry;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_KEY;
-import static org.idea.netty.framework.server.common.ConfigPropertiesKey.REGISTER_ADDRESS_PORT_KEY;
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.*;
 import static org.idea.netty.framework.server.common.URL.buildUrlStr;
 
 
@@ -34,6 +39,14 @@ public class ZookeeperRegister extends FailBackRegistry {
         zkClient = new CuratorZookeeperClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY), PropertiesUtils.getPropertiesInteger(REGISTER_ADDRESS_PORT_KEY));
     }
 
+    public void startListenTask(){
+        if (zkClient == null || StringUtil.isNullOrEmpty(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY))) {
+            System.err.println("节点数据或者客户端对象数据异常，请校验配置");
+            return;
+        }
+        Thread nodeTask = new Thread(new ClientListenerTask((CuratorFramework) zkClient.getClient(), ROOT_PATH,this));
+        nodeTask.start();
+    }
 
     @Override
     public void doRegister(URL url) {
@@ -150,11 +163,57 @@ public class ZookeeperRegister extends FailBackRegistry {
 
     @Override
     public void doSubscribe(URL url) {
-
+        System.out.println("doSubscribe, url is "+url.toString());
     }
 
     @Override
     public void doUnSubscribe(URL url) {
+        System.out.println("doUnSubscribe, url is "+url.toString());
+    }
 
+
+    /**
+     * 后台监听节点数据的线程
+     */
+    private static class ClientListenerTask implements Runnable {
+
+        private  ZookeeperRegister zookeeperRegister;
+
+        private CuratorFramework curatorFramework;
+
+        private String rootPath;
+
+        public ClientListenerTask(CuratorFramework curatorFramework, String rootPath,ZookeeperRegister zookeeperRegister) {
+            this.curatorFramework = curatorFramework;
+            this.rootPath = rootPath;
+            this.zookeeperRegister = zookeeperRegister;
+        }
+
+        @Override
+        public void run() {
+            try {
+                System.out.println("监听节点数据");
+                TreeCache treeCache = new TreeCache(curatorFramework, rootPath);
+                TreeCacheListener listener = (client1, event) -> {
+                    byte[] data = event.getData().getData();
+                    String urlStr = new String(data);
+                    URL url = URL.convertFromUrlStr(urlStr);
+                    ZookeeperRegistryEventHandler zookeeperRegistryEventHandler = new ZookeeperRegistryEventHandler(zookeeperRegister);
+                    if (TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())) {
+                        zookeeperRegister.doSubscribe(url);
+                    } else if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())) {
+                        zookeeperRegister.doSubscribe(url);
+                    } else if (TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())) {
+                        zookeeperRegister.doUnSubscribe(url);
+                    }
+                    System.err.println("event type2 ：" + event.getType() +
+                            " | path ：" + (null != event.getData() ? event.getData().getPath() : null));
+                };
+                treeCache.getListenable().addListener(listener);
+                treeCache.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

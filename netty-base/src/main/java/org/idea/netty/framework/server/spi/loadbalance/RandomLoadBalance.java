@@ -1,12 +1,11 @@
 package org.idea.netty.framework.server.spi.loadbalance;
 
-import org.idea.netty.framework.server.common.Invoker;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.Invocation;
 import org.idea.netty.framework.server.spi.LoadBalance;
-import org.idea.netty.framework.server.util.StringUtils;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * 随机负载均衡组件
@@ -18,8 +17,12 @@ public class RandomLoadBalance implements LoadBalance {
 
 
     @Override
-    public Invoker doSelect(List<Invoker> invokerList, URL url, Invocation invocation) {
-
-        return null;
+    public void doSelect(Invocation invocation) {
+        List<URL> urls = invocation.getUrls();
+        Random random = new Random();
+        int id = random.nextInt(urls.size());
+        URL url = urls.get(id);
+        System.out.println("选中的服务器url为：" + url);
+        invocation.setReferUrl(url);
     }
 }

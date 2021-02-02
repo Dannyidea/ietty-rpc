@@ -1,5 +1,5 @@
 #Ietty Registry Cache
-#Mon Feb 01 19:04:02 CST 2021
-goodsService=zookeeper\://goodsService;[];100;127.0.0.1;8091;username;password
-userService=zookeeper\://userService;[];100;127.0.0.1;8091;username;password
-testImpl=zookeeper\://testImpl;[];100;127.0.0.1;8091;username;password
+#Tue Feb 02 18:16:41 CST 2021
+goodsService=zookeeper\://goodsService;[findAll, addGoods];100;127.0.0.1;8092;username;password
+userService=zookeeper\://userService;[addUser, findAll];100;127.0.0.1;8092;username;password
+testImpl=zookeeper\://testImpl;[doTest, testStr];100;127.0.0.1;8092;username;password
