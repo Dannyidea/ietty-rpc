@@ -54,9 +54,10 @@ public class IettyServerStarter {
             serviceConfig.setRegisterConfig(registerConfig);
         }
         ServerApplication.setServerConfigList(serviceConfigSet);
-        //todo
+        //订阅对于注册中心服务的监听 todo
         ZookeeperRegister zookeeperRegister = ZookeeperRegisterFactory.getZookeeperRegister();
         zookeeperRegister.startListenTask();
+
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -72,7 +73,6 @@ public class IettyServerStarter {
                 System.out.println("exit ietty");
             }
         }));
-
         //构建配置总线，并且写入到zookeeper
         ServerApplication.start();
     }
@@ -98,7 +98,7 @@ public class IettyServerStarter {
         ProtocolConfig protocolConfig = new ProtocolConfig();
         protocolConfig.setHost("127.0.0.1");
         protocolConfig.setName("ietty-2");
-        protocolConfig.setPort(8090);
+        protocolConfig.setPort(8094);
 
         RegisterConfig registerConfig = new RegisterConfig();
         registerConfig.setAddress("127.0.0.1");

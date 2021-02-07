@@ -4,12 +4,12 @@ import io.netty.channel.ChannelFuture;
 import org.idea.netty.framework.server.ClientApplication;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
+import org.idea.netty.framework.server.register.Register;
+import org.idea.netty.framework.server.register.RegisterFactory;
+import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
 import org.idea.netty.framework.server.rpc.filter.IettyConsumerFilterChain;
-import org.idea.netty.framework.server.util.CollectionUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author linhao
@@ -36,6 +36,11 @@ public class ReferenceConfig<T> {
     private String serviceName;
 
     private List<URL> urls;
+
+    /**
+     * 消费方的ip地址
+     */
+    private String address;
 
     /**
      * 执行远程调用
@@ -139,5 +144,29 @@ public class ReferenceConfig<T> {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
+     * 将自己订阅的信息写入到zk节点下边的consumer模块
+     */
+    public void doRefRecord(){
+        List<URL> urls = this.getUrls();
+        RegisterFactory registerFactory = new ZookeeperRegisterFactory();
+        String consumerUrlStr = URL.buildConsumerUrlStr(this);
+        for (URL url : urls) {
+            url.getParameters().put("saveUrlInDisk","false");
+            Register register = registerFactory.createRegister(url);
+            register.subscribe(consumerUrlStr,interfaceClass.getName());
+        }
+        registerFactory.startListenTask();
     }
 }

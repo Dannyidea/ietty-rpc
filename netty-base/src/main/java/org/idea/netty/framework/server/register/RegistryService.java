@@ -35,16 +35,28 @@ public interface RegistryService {
      */
     void unRegister(URL url);
 
+    /**
+     * 消费方订阅服务
+     *
+     * @param urlStr
+     * @param providerServiceName
+     */
+    void subscribe(String urlStr,String providerServiceName);
 
     /**
-     * 执行订阅内部逻辑
-     *
-     * 例如当指定当provider节点上边增加了url，这时候需要去通知到对应到consumer方，具体逻辑写在这里
-     * 另外当节点内部当url发生更新当时候，这里也需要被通知到位
+     * 更新节点属性之后通知这里
      *
      * @param url
      */
-    void doSubscribe(URL url);
+    void doSubscribeAfterUpdate(URL url);
+
+
+    /**
+     * 新增节点之后通知这里
+     *
+     * @param url
+     */
+    void doSubscribeAfterAdd(URL url);
 
 
     /**

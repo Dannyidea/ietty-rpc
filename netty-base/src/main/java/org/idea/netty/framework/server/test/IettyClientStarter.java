@@ -1,27 +1,13 @@
 package org.idea.netty.framework.server.test;
 
-import org.idea.netty.framework.server.common.ConfigPropertiesKey;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.config.ApplicationConfig;
-import org.idea.netty.framework.server.config.ProtocolConfig;
 import org.idea.netty.framework.server.config.ReferenceConfig;
-import org.idea.netty.framework.server.config.RegisterConfig;
-import org.idea.netty.framework.server.register.Register;
-import org.idea.netty.framework.server.register.RegisterFactory;
-import org.idea.netty.framework.server.register.support.AbstractRegistry;
 import org.idea.netty.framework.server.register.support.AbstractZookeeperClient;
 import org.idea.netty.framework.server.register.support.CuratorZookeeperClient;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
-import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
-import org.idea.netty.framework.server.spi.filter.ConsumerFilter;
-import org.idea.netty.framework.server.spi.filter.ProviderFilter;
-import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.test.service.GoodsService;
-import org.idea.netty.framework.server.test.service.Test;
-import org.idea.netty.framework.server.test.service.UserService;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,9 +22,7 @@ import static org.idea.netty.framework.server.common.ConfigPropertiesKey.*;
  */
 public class IettyClientStarter {
 
-    private static List<ReferenceConfig> referenceConfigs = new LinkedList<>();
-
-    private static Map<String, ReferenceConfig> referenceMaps = new ConcurrentHashMap<>();
+    public static Map<String, ReferenceConfig> referenceMaps = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws InterruptedException {
         ApplicationConfig applicationConfig = new ApplicationConfig();
@@ -46,18 +30,18 @@ public class IettyClientStarter {
         applicationConfig.setOwner("linhao");
         applicationConfig.setVersion("1.0.0");
 
-        ReferenceConfig<Test> referenceConfig = new ReferenceConfig<>();
-        referenceConfig.setApplication(applicationConfig.getName());
-        referenceConfig.setInterfaceClass(Test.class);
-        referenceConfig.setInterfaceName("testImpl");
-
         ReferenceConfig<GoodsService> refer = buildReference(GoodsService.class, "goodsService", "test-application");
         initClientConfig();
         GoodsService goodsService = refer.get();
         //获取zk的配置url
         while (true) {
-            goodsService.findAll();
-            Thread.sleep(1500);
+            try {
+                goodsService.findAll();
+                Thread.sleep(2500);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -67,7 +51,9 @@ public class IettyClientStarter {
         referenceConfig.setInterfaceClass(clazz);
         referenceConfig.setInterfaceName(clazz.getName());
         referenceConfig.setServiceName(serviceName);
-        IettyClientStarter.referenceConfigs.add(referenceConfig);
+        referenceConfig.setProtocol("ietty");
+        referenceConfig.setAddress("127.0.0.1");
+        IettyClientStarter.referenceMaps.put(clazz.getName(),referenceConfig);
         return referenceConfig;
     }
 
@@ -77,7 +63,8 @@ public class IettyClientStarter {
         //todo
         AbstractZookeeperClient abstractZookeeperClient = new CuratorZookeeperClient(PropertiesUtils.getPropertiesStr(REGISTER_ADDRESS_KEY),
                 PropertiesUtils.getPropertiesInteger(REGISTER_ADDRESS_PORT_KEY));
-        for (ReferenceConfig config : IettyClientStarter.referenceConfigs) {
+        for (String key : IettyClientStarter.referenceMaps.keySet()) {
+            ReferenceConfig config = referenceMaps.get(key);
             String className = config.getInterfaceName();
             String providerData = abstractZookeeperClient.getNodeData("/ietty/" + className + "/provider");
             String urlArr[] = providerData.split("##");
@@ -89,8 +76,11 @@ public class IettyClientStarter {
                 urls.add(currentUrl);
             }
             config.setUrls(urls);
-            referenceMaps.put(className, config);
+            config.doRefRecord();
         }
+
+//        ZookeeperRegister zookeeperRegister = ZookeeperRegisterFactory.getZookeeperRegister();
+//        zookeeperRegister.startListenTask();
     }
 
 

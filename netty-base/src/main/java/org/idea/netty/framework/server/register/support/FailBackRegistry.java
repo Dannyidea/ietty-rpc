@@ -61,10 +61,25 @@ public abstract class FailBackRegistry extends AbstractRegistry implements Regis
 
     }
 
+    @Override
+    public void subscribe(String urlStr,String providerServiceName) {
+        this.doSubscribe(urlStr,providerServiceName);
+    }
 
 
     /**
-     * 留给子类进行实现所用
+     * 留给子类进行实现使用
+     *
+     * @param urlStr
+     * @param providerServiceName
+     */
+    public abstract void doSubscribe(String urlStr,String providerServiceName);
+
+
+    /**
+     * 留给子类进行实现使用
+     *
+     * @param url
      */
     public abstract void doRegister(URL url);
 

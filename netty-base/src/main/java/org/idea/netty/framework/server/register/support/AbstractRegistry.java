@@ -67,8 +67,13 @@ public abstract class AbstractRegistry implements Node, RegistryService {
      */
     public AbstractRegistry(URL url) {
         this.currentUrl = url;
-        this.syncSaveFile = (boolean) url.getParameter("syncSaveFile", false);
-        this.saveUrlInDisk = (boolean) url.getParameter("saveUrlInDisk", true);
+        this.syncSaveFile = (Boolean) url.getParameter("syncSaveFile", false);
+        String saveUrlInDiskStatus = url.getParameters().get("saveUrlInDisk");
+        if (saveUrlInDiskStatus == null) {
+            this.saveUrlInDisk = true;
+        } else {
+            this.saveUrlInDisk = false;
+        }
         if (!saveUrlInDisk) {
             System.out.println("不需要将url持久化到数据库");
             return;
@@ -118,6 +123,17 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         }
     }
 
+
+    @Override
+    public void unRegister(URL url) {
+        registryURLSet.remove(url);
+    }
+
+    @Override
+    public void subscribe(String urlStr, String providerServiceName) {
+
+    }
+
     /**
      * 保存缓存持久化到磁盘中 这个操作应该设计在父类中，然后子类实现不同的doRegistry方法，但是细节点都会有共同点是用于实现持久化的步骤
      *
@@ -130,11 +146,6 @@ public abstract class AbstractRegistry implements Node, RegistryService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void unRegister(URL url) {
-        registryURLSet.remove(url);
     }
 
     public Set<URL> getRegistryURLSet() {

@@ -14,4 +14,9 @@ public class MyRegisterFactory implements RegisterFactory {
     public Register createRegister(URL url) {
         return new MyRegister(url);
     }
+
+    @Override
+    public void startListenTask() {
+
+    }
 }

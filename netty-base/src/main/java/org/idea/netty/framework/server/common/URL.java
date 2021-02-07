@@ -1,6 +1,7 @@
 package org.idea.netty.framework.server.common;
 
 
+import io.netty.util.internal.StringUtil;
 import org.idea.netty.framework.server.config.ReferenceConfig;
 
 import java.io.Serializable;
@@ -8,7 +9,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.idea.netty.framework.server.common.ConfigPropertiesKey.ROOT_PATH;
 
 /**
  * 配置总线
@@ -26,8 +30,6 @@ public class URL implements Serializable {
 
     private String applicationName;
 
-    private int port;
-
     private boolean syncSaveFile;
     /**
      * 包含了很多类型信息，包含种类有 方面名称列表，参数列表，权重，服务提供者地址，服务提供者端口号，创建节点的属性（临时节点还是持久化节点）
@@ -42,23 +44,21 @@ public class URL implements Serializable {
     public URL() {
     }
 
-    public URL(String protocol, String username, String password, String applicationName, int port, Map<String, String> parameters, String path) {
+    public URL(String protocol, String username, String password, String applicationName, Map<String, String> parameters, String path) {
         this.protocol = protocol;
         this.username = username;
         this.password = password;
         this.applicationName = applicationName;
-        this.port = port;
         this.parameters = parameters;
         this.path = path;
         this.syncSaveFile = false;
     }
 
-    public URL(String protocol, String username, String password, String applicationName, int port, boolean syncSaveFile, Map<String, String> parameters, String path) {
+    public URL(String protocol, String username, String password, String applicationName, boolean syncSaveFile, Map<String, String> parameters, String path) {
         this.protocol = protocol;
         this.username = username;
         this.password = password;
         this.applicationName = applicationName;
-        this.port = port;
         this.syncSaveFile = syncSaveFile;
         this.parameters = parameters;
         this.path = path;
@@ -84,10 +84,6 @@ public class URL implements Serializable {
         return password;
     }
 
-    public int getPort() {
-        return port;
-    }
-
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -106,10 +102,6 @@ public class URL implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public void setParameters(Map<String, String> parameters) {
@@ -141,6 +133,11 @@ public class URL implements Serializable {
         return value != null ? value : defaultValue;
     }
 
+    public Object getParameter(String key) {
+        Object value = this.getParameters().get(key);
+        return value != null ? value : null;
+    }
+
 
     @Override
     public String toString() {
@@ -149,7 +146,6 @@ public class URL implements Serializable {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", applicationName='" + applicationName + '\'' +
-                ", port=" + port +
                 ", syncSaveFile=" + syncSaveFile +
                 ", parameters=" + parameters +
                 ", path='" + path + '\'' +
@@ -165,9 +161,13 @@ public class URL implements Serializable {
                 + url.getUsername() + ";" + url.getPassword()).getBytes(), StandardCharsets.UTF_8);
     }
 
+    public static String buildConsumerUrlStr(ReferenceConfig referenceConfig) {
+        return new String((referenceConfig.getProtocol() + "://" + referenceConfig.getApplication() + ";" + referenceConfig.getAddress()).getBytes(), StandardCharsets.UTF_8);
+    }
+
     public static URL convertFromUrlStr(String urlStr) {
         String protocol = urlStr.substring(0, urlStr.indexOf("://"));
-        String path = urlStr.substring(protocol.length()+3, urlStr.indexOf(";"));
+        String path = urlStr.substring(protocol.length() + 3, urlStr.indexOf(";"));
         String[] items = urlStr.split(";");
         String method = items[1];
         String weight = items[2];
@@ -178,14 +178,35 @@ public class URL implements Serializable {
         URL url = new URL();
         url.setPath(path);
         url.setProtocol(protocol);
-        Map<String,String> parameterMap = new HashMap<>();
-        parameterMap.put("methods",method);
-        parameterMap.put("port",port);
-        parameterMap.put("weight",weight);
-        parameterMap.put("host",host);
+        Map<String, String> parameterMap = new HashMap<>(4);
+        parameterMap.put("methods", method);
+        parameterMap.put("port", port);
+        parameterMap.put("weight", weight);
+        parameterMap.put("host", host);
         url.setParameters(parameterMap);
         url.setUsername(username);
         url.setPassword(password);
         return url;
+    }
+
+
+    /**
+     * 比较两个url是否一致相同
+     *
+     * @param url
+     * @return
+     */
+    public boolean compareUrlIsSame(URL url) {
+        boolean portSame = this.getParameter("port").equals(url.getParameter("port"));
+        boolean hostSame = this.getParameter("host").equals(url.getParameter("host"));
+        return portSame && hostSame;
+    }
+
+    public String getInterfacePath(){
+        String interfacePath = (String) this.getParameter("interfacePath");
+        if(!StringUtil.isNullOrEmpty(interfacePath)){
+            return interfacePath.substring(ROOT_PATH.length() + 1).replace("/provider", "");
+        }
+        return null;
     }
 }

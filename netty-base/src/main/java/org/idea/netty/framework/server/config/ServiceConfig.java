@@ -124,7 +124,7 @@ public class ServiceConfig {
         if (StringUtils.isNotEmpty(protocol)) {
             Class clazz = ExtensionLoader.getExtensionClassMap().get(protocol);
             try {
-                //通过spi扩展查到真正的注册中心实现类 这里可以进行优化改造，没必要每个url注册的时候都做一次实力化
+                //通过spi扩展查到真正的注册中心实现类 这里可以进行优化改造，没必要每个url注册的时候都做一次实例化
                 //可以将clazz放在一个弱引用列表中，启动完毕之后直接抛弃
                 RegisterFactory registerFactory = (RegisterFactory) clazz.newInstance();
                 Register register = registerFactory.createRegister(url);

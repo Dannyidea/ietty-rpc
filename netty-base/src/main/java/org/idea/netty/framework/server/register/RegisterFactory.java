@@ -9,4 +9,6 @@ import org.idea.netty.framework.server.common.URL;
 public interface RegisterFactory {
 
     Register createRegister(URL ur);
+
+    void startListenTask();
 }

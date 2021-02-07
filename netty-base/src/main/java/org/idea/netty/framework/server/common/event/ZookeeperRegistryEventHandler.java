@@ -1,9 +1,7 @@
 package org.idea.netty.framework.server.common.event;
 
-import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegister;
 
-import static org.idea.netty.framework.server.common.event.EventTypeEnum.*;
 
 /**
  * zk注册中心事件处理器
@@ -20,12 +18,6 @@ public class ZookeeperRegistryEventHandler {
     }
 
     public void bind(EventObject eventObject) {
-        if (eventObject.getTypeEnum().equals(NODE_UPDATE)) {
-            zookeeperRegister.doSubscribe((URL) eventObject.getObject());
-        } else if (eventObject.getTypeEnum().equals(NODE_ADD)) {
-            zookeeperRegister.doSubscribe((URL) eventObject.getObject());
-        } else if (eventObject.getTypeEnum().equals(NODE_DELETE)) {
-            zookeeperRegister.doUnSubscribe((URL) eventObject.getObject());
-        }
+
     }
 }

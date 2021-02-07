@@ -13,6 +13,7 @@ import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.AnnotationUtils;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -59,15 +60,14 @@ public class IettyClient {
                         break;
                 }
                 System.out.println("===============|||||||||||||||||||============");
-            }catch (Exception e) {
-                System.err.println("@@@@@@@@@@@@@@@ input error,exp is "+e);
+            } catch (Exception e) {
+                System.err.println("@@@@@@@@@@@@@@@ input error,exp is " + e);
             }
 
         }
     }
 
     public void listIettyProviderNode() {
-
         for (ServiceConfig serviceConfig : serviceConfigSet) {
             String urls = abstractZookeeperClient.getNodeData("/ietty/" + serviceConfig.getInterfaceClass().getName() + "/provider");
             System.out.println(urls);
@@ -78,7 +78,9 @@ public class IettyClient {
         System.out.println("输入serviceName");
         Scanner serviceNameScanner = new Scanner(System.in);
         String serviceName = serviceNameScanner.nextLine();
-
+        System.out.println("输入port");
+        Scanner portScan = new Scanner(System.in);
+        int port = portScan.nextInt();
         System.out.println("输入weight");
         Scanner weightScanner = new Scanner(System.in);
         int weight = weightScanner.nextInt();
@@ -86,13 +88,22 @@ public class IettyClient {
             if (serviceConfig.getInterfaceName().equals(serviceName)) {
                 String nodeAddress = "/ietty/" + serviceConfig.getInterfaceClass().getName() + "/provider";
                 String originUrlData = abstractZookeeperClient.getNodeData(nodeAddress);
-                URL url = URL.convertFromUrlStr(originUrlData);
-                url.getParameters().put("weight", String.valueOf(weight));
-                String newUrlStr = URL.buildUrlStr(url);
-                abstractZookeeperClient.updateNodeData(nodeAddress, newUrlStr);
-                System.out.println("更新节点权重成功");
-                return;
+                List<String> urlList = Arrays.asList(originUrlData.split("##"));
+                for (String urlStr : urlList) {
+                    URL url = URL.convertFromUrlStr(urlStr);
+                    Integer currPort = Integer.valueOf(url.getParameters().get("port"));
+                    if (port == currPort.intValue()) {
+                        url.getParameters().put("weight", String.valueOf(weight));
+                        String newUrlStr = URL.buildUrlStr(url);
+                        originUrlData = originUrlData.replace(urlStr,newUrlStr);
+                        abstractZookeeperClient.updateNodeData(nodeAddress, originUrlData);
+                        System.out.println("更新节点权重成功");
+                        return;
+                    }
+                }
+
             }
         }
     }
+
 }
