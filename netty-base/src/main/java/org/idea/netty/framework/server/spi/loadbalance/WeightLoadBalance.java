@@ -18,12 +18,12 @@ public class WeightLoadBalance implements LoadBalance {
 
     public static Map<String, URL[]> randomWeightMap = new ConcurrentHashMap<>();
 
-    public static Map<String,Integer> lastIndexVisitMap = new ConcurrentHashMap<>();
+    public static Map<String, Integer> lastIndexVisitMap = new ConcurrentHashMap<>();
 
     @Override
     public void doSelect(Invocation invocation) {
         URL[] weightArr = randomWeightMap.get(invocation.getServiceName());
-        if(weightArr==null){
+        if (weightArr == null) {
             List<URL> urls = invocation.getUrls();
             Integer totalWeight = 0;
             for (URL url : urls) {
@@ -35,27 +35,27 @@ public class WeightLoadBalance implements LoadBalance {
             RandomList<URL> randomList = new RandomList(totalWeight);
             for (URL url : urls) {
                 int weight = Integer.parseInt(url.getParameters().get("weight"));
-                for(int i=0;i<weight;i++){
+                for (int i = 0; i < weight; i++) {
                     randomList.randomAdd(url);
                 }
             }
             int len = randomList.getRandomList().size();
-            for (int i =0;i<len;i++) {
+            for (int i = 0; i < len; i++) {
                 URL url = randomList.getRandomList().get(i);
                 weightArr[i] = url;
             }
-            randomWeightMap.put(invocation.getServiceName(),weightArr);
+            randomWeightMap.put(invocation.getServiceName(), weightArr);
         }
         Integer lastIndex = lastIndexVisitMap.get(invocation.getServiceName());
-        if(lastIndex == null){
+        if (lastIndex == null) {
             lastIndex = 0;
         }
-        if(lastIndex >= weightArr.length) {
+        if (lastIndex >= weightArr.length) {
             lastIndex = 0;
         }
         URL referUrl = weightArr[lastIndex];
         lastIndex++;
-        lastIndexVisitMap.put(invocation.getServiceName(),lastIndex);
+        lastIndexVisitMap.put(invocation.getServiceName(), lastIndex);
         invocation.setReferUrl(referUrl);
     }
 
@@ -73,9 +73,14 @@ public class WeightLoadBalance implements LoadBalance {
 //    }
 
     public static void main(String[] args) {
-        byte[] byteWeightArr = new byte[10];
-        byteWeightArr[0] = '1';
-        System.out.println(byteWeightArr);
-        System.out.println(byteWeightArr[1] == 0);
+        Long i = 0L;
+        Integer j = 0;
+        System.out.println(i.equals(j));
+
+        Integer k = 0;
+        Integer p = 0;
+        System.out.println(k.equals(p));
+        System.out.println(i.intValue() == j.intValue());
+
     }
 }
