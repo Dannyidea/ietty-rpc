@@ -25,13 +25,18 @@ public class ClientApplication {
 
     private static EventLoopGroup clientLoopGroup;
     private static Bootstrap bootstrap;
-    private static final String HOST = "127.0.0.1";
-    private static final short PORT = 9099;
-    private static boolean channelFutureIsReady = false;
-    private static Map<URL,ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
+    private static Map<URL, ChannelFuture> channelFutureMap = new ConcurrentHashMap<>();
 
     private static List<String> server = new ArrayList<>();
 
+    /**
+     * 内部已经有针对通道创立做出缓存处理
+     *
+     * @param url
+     * @return
+     * @throws InterruptedException
+     * @throws UnsupportedEncodingException
+     */
     public static ChannelFuture initClient(URL url) throws InterruptedException, UnsupportedEncodingException {
         ChannelFuture channelFuture = channelFutureMap.get(url);
         if (channelFuture != null) {
@@ -53,7 +58,7 @@ public class ClientApplication {
         });
         //todo
         channelFuture = bootstrap.connect(url.getParameters().get("host"), Integer.parseInt(url.getParameters().get("port"))).sync();
-        channelFutureMap.put(url,channelFuture);
+        channelFutureMap.put(url, channelFuture);
         return channelFuture;
     }
 

@@ -22,6 +22,8 @@ public class IettyProtocol implements Serializable {
 
     private String requestId;
 
+    private long clientSessionId;
+
     /**
      * 0请求 1响应
      */
@@ -112,10 +114,20 @@ public class IettyProtocol implements Serializable {
         this.requestId = requestId;
     }
 
+    public long getClientSessionId() {
+        return clientSessionId;
+    }
+
+    public void setClientSessionId(long clientSessionId) {
+        this.clientSessionId = clientSessionId;
+    }
+
     @Override
     public String toString() {
         return "IettyProtocol{" +
                 "MAGIC=" + MAGIC +
+                ", requestId='" + requestId + '\'' +
+                ", clientSessionId=" + clientSessionId +
                 ", reqOrResp=" + reqOrResp +
                 ", way=" + way +
                 ", event=" + event +

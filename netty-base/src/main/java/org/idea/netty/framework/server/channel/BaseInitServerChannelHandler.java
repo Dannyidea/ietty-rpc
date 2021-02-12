@@ -21,6 +21,7 @@ import static org.idea.netty.framework.server.util.CollectionUtils.isMapNotEmpty
 
 
 /**
+ * 服务端
  * 共享通道，意味着每次请求进来都会使用同一个handler
  *
  * @author linhao

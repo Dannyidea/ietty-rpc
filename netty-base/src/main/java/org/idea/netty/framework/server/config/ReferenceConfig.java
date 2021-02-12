@@ -1,12 +1,13 @@
 package org.idea.netty.framework.server.config;
 
-import io.netty.channel.ChannelFuture;
-import org.idea.netty.framework.server.ClientApplication;
 import org.idea.netty.framework.server.common.URL;
 import org.idea.netty.framework.server.proxy.JdkProxyFactory;
 import org.idea.netty.framework.server.register.Register;
 import org.idea.netty.framework.server.register.RegisterFactory;
 import org.idea.netty.framework.server.register.zookeeper.ZookeeperRegisterFactory;
+import org.idea.netty.framework.server.rpc.consumer.ConsumerFactory;
+import org.idea.netty.framework.server.rpc.consumer.ConsumerHandler;
+import org.idea.netty.framework.server.rpc.consumer.RpcReqData;
 import org.idea.netty.framework.server.rpc.filter.IettyConsumerFilterChain;
 
 import java.util.*;
@@ -42,27 +43,27 @@ public class ReferenceConfig<T> {
      */
     private String address;
 
+    private ConsumerFactory consumerFactory;
+
+    private ConsumerFactory getConsumerFactory(){
+        if(consumerFactory == null){
+            consumerFactory = new ConsumerHandler(1024);
+        }
+        return consumerFactory;
+    }
+
     /**
      * 执行远程调用
      *
      * @param invocation
      * @return
      */
-    public void doRef(Invocation invocation) {
+    public long doRef(Invocation invocation) {
         //这里面需要先执行一系列的过滤链路filter 每个filter都会返回一个invoker对象
         //过滤逻辑中会吧invocation中的urls不断筛选，最终只需要一个url配置
         IettyConsumerFilterChain.doFilter(invocation);
-        String port = invocation.getReferUrl().getParameters().get("port");
-        System.out.println(port);
-        ChannelFuture channelFuture = null;
-        try {
-            channelFuture = ClientApplication.initClient(invocation.getReferUrl());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        IettyProtocol iettyProtocol = buildIettyProtocol(invocation);
-        //这里面发送请求到服务端
-        channelFuture.channel().writeAndFlush(iettyProtocol);
+        RpcReqData rpcReqData = new RpcReqData(invocation);
+        return getConsumerFactory().saveInQueue(rpcReqData);
     }
 
     public T get() {
