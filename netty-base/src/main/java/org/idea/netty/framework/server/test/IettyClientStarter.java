@@ -36,7 +36,8 @@ public class IettyClientStarter {
         //获取zk的配置url
         while (true) {
             try {
-                goodsService.findAll();
+                List<String> result = goodsService.findAll();
+                System.out.println(result);
                 Thread.sleep(2500);
             }catch (Exception e){
                 e.printStackTrace();

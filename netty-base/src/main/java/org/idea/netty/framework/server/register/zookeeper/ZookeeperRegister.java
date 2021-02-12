@@ -88,7 +88,11 @@ public class ZookeeperRegister extends FailBackRegistry {
             String originUrlData = zkClient.getNodeData(providerPath);
             String urlStr = URL.buildUrlStr(url);
             originUrlData = originUrlData.replace(urlStr, "");
-            zkClient.updateNodeData(providerPath, originUrlData);
+            if(StringUtil.isNullOrEmpty(originUrlData)){
+                zkClient.deleteNode(providerPath);
+            } else {
+                zkClient.updateNodeData(providerPath, originUrlData);
+            }
         } catch (Exception e) {
         }
     }

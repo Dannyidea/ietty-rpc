@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class IettyProtocol implements Serializable {
     /**
      * 0是心跳时间，1不是心跳事件
      */
-    private byte event=0;
+    private byte event = 0;
 
     /**
      * 序列化类型
@@ -48,6 +49,11 @@ public class IettyProtocol implements Serializable {
      * 状态
      */
     private short status;
+
+    /**
+     * 返回的数据类型格式
+     */
+    private Type type;
 
     /**
      * 消息体 请求方发送的函数类型，参数信息都存在这里， 接收方响应的信息也都存在这里
@@ -122,6 +128,14 @@ public class IettyProtocol implements Serializable {
         this.clientSessionId = clientSessionId;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "IettyProtocol{" +
@@ -133,6 +147,7 @@ public class IettyProtocol implements Serializable {
                 ", event=" + event +
                 ", serializationType='" + serializationType + '\'' +
                 ", status=" + status +
+                ", type=" + type +
                 ", body=" + Arrays.toString(body) +
                 '}';
     }
