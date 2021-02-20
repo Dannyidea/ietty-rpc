@@ -93,7 +93,7 @@ public class ServerApplication {
                 ch.pipeline().addLast(new ObjectDecoder(1024 * 1024,
                         ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
                 ch.pipeline().addLast(new ObjectEncoder());
-                ch.pipeline().addLast(new BaseInitServerChannelHandler());
+                ch.pipeline().addLast(new BaseInitServerChannelHandler(10));
             }
         });
 

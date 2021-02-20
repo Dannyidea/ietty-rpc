@@ -9,6 +9,8 @@ import org.idea.netty.framework.server.common.utils.ConvertUtils;
 import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.config.Invocation;
 import org.idea.netty.framework.server.config.ServiceConfig;
+import org.idea.netty.framework.server.rpc.RpcData;
+import org.idea.netty.framework.server.rpc.provider.ProviderHandler;
 import org.idea.netty.framework.server.spi.filter.ProviderFilter;
 import org.idea.netty.framework.server.spi.loader.ExtensionLoader;
 import org.idea.netty.framework.server.util.StringUtils;
@@ -32,10 +34,19 @@ import static org.idea.netty.framework.server.util.CollectionUtils.isMapNotEmpty
 @ChannelHandler.Sharable
 public class BaseInitServerChannelHandler extends ChannelInboundHandlerAdapter {
 
+    private ProviderHandler providerHandler;
+
+    public BaseInitServerChannelHandler(int size){
+        //设置服务端队列大小
+        this.providerHandler = new ProviderHandler(size);
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         IettyProtocol data = (IettyProtocol) msg;
         Invocation invocation = toInvocationFromByte(data.getBody());
+        RpcData rpcData = new RpcData(data,-1);
+        providerHandler.receive(rpcData);
         AllChannelHandler.channelRead(new Runnable() {
             @Override
             public void run() {
