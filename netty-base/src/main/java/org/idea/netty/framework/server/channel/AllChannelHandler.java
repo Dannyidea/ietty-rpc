@@ -1,8 +1,6 @@
 package org.idea.netty.framework.server.channel;
 
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author linhao
@@ -13,8 +11,8 @@ public class AllChannelHandler {
     private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2,8,1, TimeUnit.MINUTES
     ,new SynchronousQueue<>(),new ThreadPoolExecutor.AbortPolicy());
 
-    public static void channelRead(Runnable r){
-        threadPoolExecutor.execute(r);
+    public static void channelRead(FutureTask futureTask){
+        threadPoolExecutor.execute(futureTask);
     }
 
     public static void shutDown(){

@@ -1,11 +1,17 @@
 package org.idea.netty.framework.server.rpc.provider;
 
 import lombok.SneakyThrows;
+import org.idea.netty.framework.server.channel.AllChannelHandler;
+import org.idea.netty.framework.server.channel.ProviderHandlerTask;
+import org.idea.netty.framework.server.config.IettyProtocol;
 import org.idea.netty.framework.server.rpc.RpcData;
 
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.idea.netty.framework.server.common.IettyProviderCache.PROVIDER_RESP_DATA;
 
 
 /**
@@ -57,11 +63,15 @@ public class ProviderHandler implements ProviderFactory {
     public void receiveHandler() {
         lock.lock();
         try {
+            System.out.println("start receiveHandler");
             while (providerQueue.isEmpty()) {
                 notEmpty.await();
             }
             RpcData rpcData = providerQueue.offer();
             System.out.println("处理任务：" + rpcData);
+            FutureTask<IettyProtocol> futureTask = new FutureTask<>(new ProviderHandlerTask(rpcData));
+            PROVIDER_RESP_DATA.put(Long.valueOf(rpcData.getClientSessionId()),futureTask);
+            AllChannelHandler.channelRead(futureTask);
             notFull.signalAll();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -76,8 +86,9 @@ public class ProviderHandler implements ProviderFactory {
             @SneakyThrows
             @Override
             public void run() {
-                for (int i = 0; i < 100; i++) {
-                    providerFactory.receive(new RpcData(null, i));
+                for (;;) {
+                    providerFactory.receive(new RpcData(null, 1));
+                    Thread.sleep(100);
                 }
             }
         });
@@ -86,10 +97,9 @@ public class ProviderHandler implements ProviderFactory {
             @SneakyThrows
             @Override
             public void run() {
-                for (int i = 0; i < 100; i++) {
+                for (;;) {
                     providerFactory.receiveHandler();
                 }
-                System.out.println("全部处理完毕");
             }
         });
 

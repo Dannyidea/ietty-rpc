@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.idea.netty.framework.server.common.ConfigPropertiesKey.IETTY_PROTOCOL_PORT;
+import static org.idea.netty.framework.server.common.IettyProviderCache.providerHandlerWorkerThread;
 
 /**
  * @author linhao
@@ -90,6 +91,7 @@ public class ServerApplication {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 System.out.println("初始化netty信息通道");
+                providerHandlerWorkerThread.start();
                 ch.pipeline().addLast(new ObjectDecoder(1024 * 1024,
                         ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
                 ch.pipeline().addLast(new ObjectEncoder());

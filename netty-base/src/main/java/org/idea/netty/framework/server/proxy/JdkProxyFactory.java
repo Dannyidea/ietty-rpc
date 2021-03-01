@@ -30,9 +30,8 @@ public class JdkProxyFactory {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 long clientSessionId = requestProvider(interfaceClass, referenceConfig, proxy, method, args);
+                System.out.println(CLIENT_RESP_MAP);
                 while (CLIENT_RESP_MAP.get(clientSessionId) != null && CLIENT_RESP_MAP.get(clientSessionId).getIettyProtocol() == null) {
-                    System.out.println("wait");
-                    Thread.sleep(1000);
                 }
                 RpcRespData resp = CLIENT_RESP_MAP.get(clientSessionId);
                 byte[] respData = resp.getIettyProtocol().getBody();

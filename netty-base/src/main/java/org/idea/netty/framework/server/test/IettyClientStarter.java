@@ -9,7 +9,6 @@ import org.idea.netty.framework.server.test.service.GoodsService;
 import org.idea.netty.framework.server.util.PropertiesUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

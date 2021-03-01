@@ -20,6 +20,7 @@ public class BaseInitClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println("channel read");
         IettyProtocol iettyProtocol = (IettyProtocol) msg;
         if (CLIENT_RESP_MAP.containsKey(iettyProtocol.getClientSessionId())) {
             RpcRespData rpcRespData = CLIENT_RESP_MAP.get(iettyProtocol.getClientSessionId());

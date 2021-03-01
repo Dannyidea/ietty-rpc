@@ -1,5 +1,6 @@
 package org.idea.netty.framework.server.config;
 
+import io.netty.channel.ChannelHandlerContext;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ public class IettyProtocol implements Serializable {
     private String requestId;
 
     private long clientSessionId;
+
+    private ChannelHandlerContext channelHandlerContext;
 
     /**
      * 0请求 1响应
@@ -134,6 +137,14 @@ public class IettyProtocol implements Serializable {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public ChannelHandlerContext getChannelHandlerContext() {
+        return channelHandlerContext;
+    }
+
+    public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
+        this.channelHandlerContext = channelHandlerContext;
     }
 
     @Override
