@@ -71,25 +71,7 @@ public class ReferenceConfig<T> {
         return JdkProxyFactory.getProxy(interfaceClass, this);
     }
 
-    /**
-     * 构建请求协议数据
-     *
-     * @param invocation
-     * @return IettyProtocol对象
-     */
-    public IettyProtocol buildIettyProtocol(Invocation invocation) {
-        IettyProtocol iettyProtocol = new IettyProtocol();
-        iettyProtocol.setBody(invocation.toByteArray());
-        iettyProtocol.setEvent((byte) 1);
-        iettyProtocol.setReqOrResp((byte) 0);
-        iettyProtocol.setSerializationType("jdk");
-        iettyProtocol.setRequestId(this.getRequestId());
-        //0正常请求状态
-        iettyProtocol.setStatus((short) 0);
-        //随机数字
-        iettyProtocol.setMAGIC(new Random().nextInt(10000));
-        return iettyProtocol;
-    }
+
 
     public String getProtocol() {
         return protocol;

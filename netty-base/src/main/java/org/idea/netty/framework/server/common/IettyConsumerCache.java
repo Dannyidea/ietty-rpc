@@ -1,7 +1,5 @@
 package org.idea.netty.framework.server.common;
 
-import org.idea.netty.framework.server.rpc.RpcData;
-import org.idea.netty.framework.server.rpc.consumer.RpcReqData;
 import org.idea.netty.framework.server.rpc.provider.RpcRespData;
 
 import java.util.Map;
